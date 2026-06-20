@@ -152,7 +152,7 @@ public class MEPatternBufferPartMachine extends MEBusPartMachine
         this.shareInventory = attachTrait(new NotifiableItemStackHandler(9, IO.IN, IO.NONE));
         this.shareTank = attachTrait(new NotifiableFluidTank(9, 8 * FluidType.BUCKET_VOLUME, IO.IN, IO.NONE));
         this.internalRecipeHandler = new InternalSlotRecipeHandler(this, internalInventory);
-        // Inventory isn't used; prevent items being inserted (e.g., via hoppers) and becoming inaccessible.
+        // inventory isn't used, prevent items being inserted via e.g. hoppers and becoming inaccessible.
         this.getInventory().setFilter((ignored) -> false);
     }
 
