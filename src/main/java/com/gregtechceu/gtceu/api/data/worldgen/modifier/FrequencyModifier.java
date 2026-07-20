@@ -1,11 +1,8 @@
 package com.gregtechceu.gtceu.api.data.worldgen.modifier;
 
-import com.gregtechceu.gtceu.GTCEu;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
-
+import com.gregtechceu.gtceu.common.worldgen.modifier.GTPlacementModifiers;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -22,8 +19,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class FrequencyModifier extends PlacementModifier {
-
-    public static final PlacementModifierType<FrequencyModifier> FREQUENCY_MODIFIER = () -> FrequencyModifier.CODEC;
 
     public static final Codec<FrequencyModifier> CODEC = ExtraCodecs.POSITIVE_FLOAT.fieldOf("chance")
             .xmap(FrequencyModifier::new, (modifier) -> modifier.frequency).codec();
@@ -50,6 +45,6 @@ public class FrequencyModifier extends PlacementModifier {
 
     @Override
     public PlacementModifierType<?> type() {
-        return FREQUENCY_MODIFIER;
+        return GTPlacementModifiers.FREQUENCY.get();
     }
 }

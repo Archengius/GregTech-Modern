@@ -2,6 +2,7 @@ package com.gregtechceu.gtceu.api.data.worldgen.modifier;
 
 import com.gregtechceu.gtceu.api.data.worldgen.BiomeWeightModifier;
 
+import com.gregtechceu.gtceu.common.worldgen.modifier.GTPlacementModifiers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.placement.PlacementContext;
@@ -14,8 +15,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class BiomePlacement extends PlacementModifier {
-
-    public static final PlacementModifierType<BiomePlacement> BIOME_PLACEMENT = () -> BiomePlacement.CODEC;
 
     public static final Codec<BiomePlacement> CODEC = BiomeWeightModifier.CODEC.listOf().fieldOf("modifiers")
             .xmap(BiomePlacement::new, placement -> placement.modifiers).codec();
@@ -41,6 +40,6 @@ public class BiomePlacement extends PlacementModifier {
 
     @Override
     public PlacementModifierType<?> type() {
-        return BIOME_PLACEMENT;
+        return GTPlacementModifiers.BIOME_PLACEMENT.get();
     }
 }

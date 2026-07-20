@@ -1,11 +1,8 @@
 package com.gregtechceu.gtceu.common.worldgen.modifier;
 
-import com.gregtechceu.gtceu.GTCEu;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.placement.RepeatingPlacement;
@@ -13,8 +10,6 @@ import net.minecraft.world.level.levelgen.placement.RepeatingPlacement;
 import com.mojang.serialization.Codec;
 
 public class RubberTreeChancePlacement extends RepeatingPlacement {
-
-    public static final PlacementModifierType<RubberTreeChancePlacement> RUBBER_TREE_CHANCE_PLACEMENT = () -> RubberTreeChancePlacement.CODEC;
 
     public static final RubberTreeChancePlacement INSTANCE = new RubberTreeChancePlacement();
     public static final Codec<RubberTreeChancePlacement> CODEC = Codec.unit(INSTANCE);
@@ -26,6 +21,6 @@ public class RubberTreeChancePlacement extends RepeatingPlacement {
 
     @Override
     public PlacementModifierType<?> type() {
-        return RUBBER_TREE_CHANCE_PLACEMENT;
+        return GTPlacementModifiers.RUBBER_TREE_PLACEMENT.get();
     }
 }
