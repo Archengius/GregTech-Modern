@@ -138,6 +138,6 @@ public class MultiblockMachineBuilder<DEFINITION extends MultiblockMachineDefini
         }
         definition.setPartAppearance(partAppearance);
         definition.setAdditionalDisplay(additionalDisplay);
-        return value = definition;
+        return definition;
     }
 }
