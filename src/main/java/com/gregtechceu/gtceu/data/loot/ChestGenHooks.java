@@ -1,7 +1,6 @@
 package com.gregtechceu.gtceu.data.loot;
 
 import com.gregtechceu.gtceu.GTCEu;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.core.mixins.LootPoolAccessor;
 import com.gregtechceu.gtceu.utils.GTMath;
@@ -56,6 +55,10 @@ public final class ChestGenHooks {
     private static final LootItemCondition[] NO_CONDITIONS = new LootItemCondition[0];
 
     private static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPE = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, GTCEu.MOD_ID);
+
+    private static final RegistryObject<LootItemFunctionType> RANDOM_WEIGHT_LOOT_FUNCTION_TYPE =
+            LOOT_ITEM_FUNCTION_TYPE.register("random_weight", () -> new LootItemFunctionType(new RandomWeightLootFunction.Serializer()));
+
 
     private ChestGenHooks() {}
 
@@ -144,8 +147,6 @@ public final class ChestGenHooks {
 
     public static class RandomWeightLootFunction extends LootItemConditionalFunction implements LootItemFunction {
 
-        private static final RegistryObject<LootItemFunctionType> TYPE = LOOT_ITEM_FUNCTION_TYPE.register("random_weight", () -> new LootItemFunctionType(new Serializer()));
-
         private final ItemStack stack;
         @Getter
         private final int minAmount;
@@ -166,7 +167,7 @@ public final class ChestGenHooks {
 
         @Override
         public LootItemFunctionType getType() {
-            return TYPE.get();
+            return RANDOM_WEIGHT_LOOT_FUNCTION_TYPE.get();
         }
 
         @Override
