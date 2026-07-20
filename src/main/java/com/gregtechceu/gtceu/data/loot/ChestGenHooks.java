@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.utils.GTMath;
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -26,7 +27,9 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import com.google.common.base.Preconditions;
@@ -35,6 +38,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,10 +55,16 @@ public final class ChestGenHooks {
 
     private static final LootItemCondition[] NO_CONDITIONS = new LootItemCondition[0];
 
+    private static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPE = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, GTCEu.MOD_ID);
+
     private ChestGenHooks() {}
 
     public static void init() {
         MinecraftForge.EVENT_BUS.register(ChestGenHooks.class);
+    }
+
+    public static void init(IEventBus modBus) {
+        LOOT_ITEM_FUNCTION_TYPE.register(modBus);
     }
 
     @SubscribeEvent
@@ -134,8 +144,7 @@ public final class ChestGenHooks {
 
     public static class RandomWeightLootFunction extends LootItemConditionalFunction implements LootItemFunction {
 
-        public static final LootItemFunctionType TYPE = GTRegistries.register(BuiltInRegistries.LOOT_FUNCTION_TYPE,
-                GTCEu.id("random_weight"), new LootItemFunctionType(new Serializer()));
+        private static final RegistryObject<LootItemFunctionType> TYPE = LOOT_ITEM_FUNCTION_TYPE.register("random_weight", () -> new LootItemFunctionType(new Serializer()));
 
         private final ItemStack stack;
         @Getter
@@ -157,7 +166,7 @@ public final class ChestGenHooks {
 
         @Override
         public LootItemFunctionType getType() {
-            return TYPE;
+            return TYPE.get();
         }
 
         @Override

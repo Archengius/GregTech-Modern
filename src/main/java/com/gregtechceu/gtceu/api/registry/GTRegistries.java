@@ -1,10 +1,13 @@
 package com.gregtechceu.gtceu.api.registry;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
 import com.gregtechceu.gtceu.api.data.DimensionMarker;
 import com.gregtechceu.gtceu.api.data.chemical.Element;
+import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import com.gregtechceu.gtceu.api.data.chemical.material.registry.MaterialRegistry;
 import com.gregtechceu.gtceu.api.data.medicalcondition.MedicalCondition;
@@ -22,9 +25,13 @@ import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
 import com.gregtechceu.gtceu.api.sound.SoundEntry;
 
+import com.gregtechceu.gtceu.core.mixins.BuiltInRegistriesAccessor;
+import com.mojang.serialization.Lifecycle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -33,17 +40,69 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
-import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import com.mojang.serialization.Codec;
+import net.minecraftforge.registries.IdMappingEvent;
+import net.minecraftforge.registries.RegisterEvent;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.UnmodifiableView;
 
+import java.util.*;
+
+@SuppressWarnings("unused")
 public final class GTRegistries {
+
+    private static final LinkedHashSet<ResourceLocation> LOAD_ORDER = new LinkedHashSet<>();
+    private static final LinkedHashMap<ResourceKey<Registry<?>>, Registry<?>> REGISTRIES = new LinkedHashMap<>();
+
+    private GTRegistries() {}
+
+    // spotless:off
+    public static final class Keys {
+        private Keys() {}
+
+        // Material related registries
+        public static final ResourceKey<Registry<Material>> MATERIAL = makeRegistryKey(GTCEu.id("material"));
+        public static final ResourceKey<Registry<Element>> ELEMENT = makeRegistryKey(GTCEu.id("element"));
+        public static final ResourceKey<Registry<TagPrefix>> TAG_PREFIX = makeRegistryKey(GTCEu.id("tag_prefix"));
+        public static final ResourceKey<Registry<MaterialIconSet>> MATERIAL_ICON_SET = makeRegistryKey(GTCEu.id("material_icon_set"));
+
+        // Recipe related registries
+
+        /**
+         * Use {@link Registries#RECIPE_TYPE} instead of this. This only exists to simplify KubeJS registration.
+         *
+         * @see Registries#RECIPE_TYPE
+         */
+        @ApiStatus.Internal
+        public static final ResourceKey<Registry<RecipeType<?>>> RECIPE_TYPE = makeRegistryKey(GTCEu.id("recipe_type"));
+        public static final ResourceKey<Registry<GTRecipeCategory>> RECIPE_CATEGORY = makeRegistryKey(GTCEu.id("recipe_category"));
+        public static final ResourceKey<Registry<RecipeCapability<?>>> RECIPE_CAPABILITY = makeRegistryKey(GTCEu.id("recipe_capability"));
+        public static final ResourceKey<Registry<RecipeConditionType<?>>> RECIPE_CONDITION = makeRegistryKey(GTCEu.id("recipe_condition"));
+        public static final ResourceKey<Registry<ChanceLogic>> CHANCE_LOGIC = makeRegistryKey(GTCEu.id("chance_logic"));
+
+        // Datapack registries
+
+        public static final ResourceKey<Registry<BedrockFluidDefinition>> BEDROCK_FLUID = makeRegistryKey(GTCEu.id("bedrock_fluid"));
+        public static final ResourceKey<Registry<BedrockOreDefinition>> BEDROCK_ORE = makeRegistryKey(GTCEu.id("bedrock_ore"));
+        public static final ResourceKey<Registry<GTOreDefinition>> ORE_VEIN = makeRegistryKey(GTCEu.id("ore_vein"));
+
+        // Other registries
+
+        public static final ResourceKey<Registry<CoverDefinition>> COVER = makeRegistryKey(GTCEu.id("cover"));
+        public static final ResourceKey<Registry<MachineDefinition>> MACHINE = makeRegistryKey(GTCEu.id("machine"));
+
+        public static final ResourceKey<Registry<SoundEntry>> SOUND = makeRegistryKey(GTCEu.id("sound"));
+
+        public static final ResourceKey<Registry<DimensionMarker>> DIMENSION_MARKER = makeRegistryKey(GTCEu.id("dimension_marker"));
+        public static final ResourceKey<Registry<MedicalCondition>> MEDICAL_CONDITION = makeRegistryKey(GTCEu.id("medical_condition"));
+        public static final ResourceKey<Registry<IWorldGenLayer>> WORLD_GEN_LAYER = makeRegistryKey(GTCEu.id("world_gen_layer"));
+        public static final ResourceKey<Registry<PatternError.PatternErrorType>> PATTERN_ERROR_TYPE = makeRegistryKey(GTCEu.id("pattern_error_type"));
+        public static final ResourceKey<Registry<Placeholder>> PLACEHOLDER = makeRegistryKey(GTCEu.id("placeholder"));
+    }
 
     // spotless:off
 
@@ -83,12 +142,37 @@ public final class GTRegistries {
             GTCEu.id("pattern_errors"));
 
 
-
-    public static final DeferredRegister<TrunkPlacerType<?>> TRUNK_PLACER_TYPE = DeferredRegister.create(Registries.TRUNK_PLACER_TYPE, GTCEu.MOD_ID);
-    public static final DeferredRegister<PlacementModifierType<?>> PLACEMENT_MODIFIER = DeferredRegister.create(Registries.PLACEMENT_MODIFIER_TYPE, GTCEu.MOD_ID);
-    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIES = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, GTCEu.MOD_ID);
-
     // spotless:on
+
+    private static <T> ResourceKey<Registry<T>> makeRegistryKey(ResourceLocation registryId) {
+        return ResourceKey.createRegistryKey(registryId);
+    }
+
+    private static <T> MappedRegistry<T> makeRegistry(ResourceKey<Registry<T>> key) {
+        return makeRegistry(key, new MappedRegistry<>(key, Lifecycle.stable(), false));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T, R extends WritableRegistry<T>> R makeRegistry(ResourceKey<Registry<T>> key, R registry) {
+        BuiltInRegistriesAccessor.gtceu$getWRITABLE_REGISTRY().register((ResourceKey<WritableRegistry<?>>) (Object) key,
+                registry, Lifecycle.stable());
+        LOAD_ORDER.add(key.location());
+        REGISTRIES.put((ResourceKey<Registry<?>>)(Object)key, registry);
+        return registry;
+    }
+
+    @UnmodifiableView
+    public static LinkedHashSet<ResourceLocation> getRegistryOrder() {
+        return LOAD_ORDER;
+    }
+
+    @UnmodifiableView
+    public static Collection<Registry<?>> getRegistries() {
+        return Collections.unmodifiableCollection(REGISTRIES.values());
+    }
+
+    private static final Table<Registry<?>, ResourceLocation, Object> TO_REGISTER = HashBasedTable.create();
+    private static boolean isFrozen = true;
 
     public static <V, T extends V> T register(Registry<V> registry, ResourceLocation name, T value) {
         ResourceKey<?> registryKey = registry.key();
@@ -101,22 +185,44 @@ public final class GTRegistries {
             ForgeRegistries.FEATURES.register(name, (Feature<?>) value);
         } else if (registryKey == Registries.FOLIAGE_PLACER_TYPE) {
             ForgeRegistries.FOLIAGE_PLACER_TYPES.register(name, (FoliagePlacerType<?>) value);
-        } else if (registryKey == Registries.TRUNK_PLACER_TYPE) {
-            TRUNK_PLACER_TYPE.register(name.getPath(), () -> (TrunkPlacerType<?>) value);
-        } else if (registryKey == Registries.PLACEMENT_MODIFIER_TYPE) {
-            PLACEMENT_MODIFIER.register(name.getPath(), () -> (PlacementModifierType<?>) value);
         } else {
-            return Registry.register(registry, name, value);
+            if (!isFrozen) {
+                Registry.register(registry, name, value);
+            } else {
+                TO_REGISTER.put(registry, name, value);
+            }
         }
 
         return value;
     }
 
-    public static void init(IEventBus eventBus) {
-        TRUNK_PLACER_TYPE.register(eventBus);
-        PLACEMENT_MODIFIER.register(eventBus);
-        GLOBAL_LOOT_MODIFIES.register(eventBus);
+    // ignore the generics and hope the registered objects are still correctly typed :3
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static void actuallyRegister(RegisterEvent event) {
+        for (Registry reg : TO_REGISTER.rowKeySet()) {
+            event.register(reg.key(), helper -> {
+                TO_REGISTER.row(reg).forEach(helper::register);
+            });
+        }
+        TO_REGISTER.clear();
     }
+
+    private static void onUnfreeze(RegisterEvent event) {
+        isFrozen = false;
+    }
+
+    private static void onFreeze(IdMappingEvent event) {
+        isFrozen = event.isFrozen();
+    }
+
+    public static void init(IEventBus eventBus) {
+        eventBus.addListener(EventPriority.HIGHEST, GTRegistries::onUnfreeze);
+        eventBus.addListener(EventPriority.LOW, GTRegistries::actuallyRegister);
+        MinecraftForge.EVENT_BUS.addListener(GTRegistries::onFreeze);
+    }
+
+
+    public static void init() {}
 
     private static final RegistryAccess BLANK = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     private static RegistryAccess FROZEN = BLANK;
