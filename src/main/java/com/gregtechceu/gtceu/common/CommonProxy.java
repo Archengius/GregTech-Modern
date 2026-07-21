@@ -16,9 +16,6 @@ import com.gregtechceu.gtceu.api.data.worldgen.WorldGenLayers;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.IndicatorGenerators;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.VeinGenerators;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
-import com.gregtechceu.gtceu.client.model.machine.MachineRenderState;
-import com.gregtechceu.gtceu.common.mui.GTGuiTheme;
-import com.gregtechceu.gtceu.common.worldgen.modifier.GTPlacementModifiers;
 import com.gregtechceu.gtceu.api.mui.factory.CoverUIFactory;
 import com.gregtechceu.gtceu.api.mui.factory.MachineUIFactory;
 import com.gregtechceu.gtceu.api.multiblock.error.GTPatternErrors;
@@ -29,6 +26,7 @@ import com.gregtechceu.gtceu.api.recipe.lookup.ingredient.fluid.*;
 import com.gregtechceu.gtceu.api.recipe.lookup.ingredient.item.*;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
+import com.gregtechceu.gtceu.client.model.machine.MachineRenderState;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.GTFeatures;
 import com.gregtechceu.gtceu.common.data.loot.*;
@@ -39,7 +37,9 @@ import com.gregtechceu.gtceu.common.data.worldgen.*;
 import com.gregtechceu.gtceu.common.item.tool.rotation.CustomBlockRotations;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
+import com.gregtechceu.gtceu.common.mui.GTGuiTheme;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
+import com.gregtechceu.gtceu.common.worldgen.modifier.GTPlacementModifiers;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.core.mixins.registrate.AbstractRegistrateAccessor;
 import com.gregtechceu.gtceu.data.GregTechDatagen;
@@ -274,15 +274,16 @@ public class CommonProxy {
         }
     }
 
-
     @SubscribeEvent
     public static void registerDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
-        /*event.dataPackRegistry(GTRegistries.Keys.ORE_VEIN,
-                GTOreDefinition.CODEC, GTOreDefinition.CODEC);
-        event.dataPackRegistry(GTRegistries.Keys.BEDROCK_FLUID,
-                BedrockFluidDefinition.FULL_CODEC, BedrockFluidDefinition.FULL_CODEC);
-        event.dataPackRegistry(GTRegistries.Keys.BEDROCK_ORE,
-                BedrockOreDefinition.FULL_CODEC, BedrockOreDefinition.FULL_CODEC);*/
+        /*
+         * event.dataPackRegistry(GTRegistries.Keys.ORE_VEIN,
+         * GTOreDefinition.CODEC, GTOreDefinition.CODEC);
+         * event.dataPackRegistry(GTRegistries.Keys.BEDROCK_FLUID,
+         * BedrockFluidDefinition.FULL_CODEC, BedrockFluidDefinition.FULL_CODEC);
+         * event.dataPackRegistry(GTRegistries.Keys.BEDROCK_ORE,
+         * BedrockOreDefinition.FULL_CODEC, BedrockOreDefinition.FULL_CODEC);
+         */
     }
 
     @SubscribeEvent
