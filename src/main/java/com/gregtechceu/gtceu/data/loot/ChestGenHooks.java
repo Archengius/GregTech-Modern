@@ -30,6 +30,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonDeserializationContext;
@@ -37,7 +38,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
-import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,11 +54,11 @@ public final class ChestGenHooks {
 
     private static final LootItemCondition[] NO_CONDITIONS = new LootItemCondition[0];
 
-    private static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPE = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, GTCEu.MOD_ID);
+    private static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPE = DeferredRegister
+            .create(Registries.LOOT_FUNCTION_TYPE, GTCEu.MOD_ID);
 
-    private static final RegistryObject<LootItemFunctionType> RANDOM_WEIGHT_LOOT_FUNCTION_TYPE =
-            LOOT_ITEM_FUNCTION_TYPE.register("random_weight", () -> new LootItemFunctionType(new RandomWeightLootFunction.Serializer()));
-
+    private static final RegistryObject<LootItemFunctionType> RANDOM_WEIGHT_LOOT_FUNCTION_TYPE = LOOT_ITEM_FUNCTION_TYPE
+            .register("random_weight", () -> new LootItemFunctionType(new RandomWeightLootFunction.Serializer()));
 
     private ChestGenHooks() {}
 

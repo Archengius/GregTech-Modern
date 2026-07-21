@@ -1,6 +1,7 @@
 package com.gregtechceu.gtceu.api.data.worldgen.modifier;
 
 import com.gregtechceu.gtceu.common.worldgen.modifier.GTPlacementModifiers;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ExtraCodecs;

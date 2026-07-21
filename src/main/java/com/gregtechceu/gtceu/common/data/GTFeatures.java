@@ -27,5 +27,4 @@ public class GTFeatures {
     public static void init(IEventBus modEventBus) {
         FEATURE_REGISTER.register(modEventBus);
     }
-
 }
