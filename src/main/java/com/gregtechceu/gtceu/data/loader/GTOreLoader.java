@@ -56,9 +56,6 @@ public class GTOreLoader extends SimpleJsonResourceReloadListener {
         GTOres.init();
         AddonFinder.getAddons().forEach(IGTAddon::registerOreVeins);
         ModLoader.get().postEvent(new GTCEuAPI.RegisterEvent<>(GTRegistries.ORE_VEINS, GTOreDefinition.class));
-        if (GTCEu.Mods.isKubeJSLoaded()) {
-            KJSCallWrapper.fireKJSEvent();
-        }
 
         RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, GTRegistries.builtinRegistry());
         for (Map.Entry<ResourceLocation, JsonElement> entry : resourceList.entrySet()) {
@@ -106,12 +103,5 @@ public class GTOreLoader extends SimpleJsonResourceReloadListener {
 
     public static GTOreDefinition fromJson(ResourceLocation id, JsonObject json, RegistryOps<JsonElement> ops) {
         return GTOreDefinition.FULL_CODEC.parse(ops, json).getOrThrow(false, LOGGER::error);
-    }
-
-    public static final class KJSCallWrapper {
-
-        public static void fireKJSEvent() {
-            GTCEuServerEvents.ORE_VEIN_MODIFICATION.post(ScriptType.SERVER, new GTOreVeinEventJS());
-        }
     }
 }

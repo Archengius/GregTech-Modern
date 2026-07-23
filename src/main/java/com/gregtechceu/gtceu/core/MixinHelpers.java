@@ -10,6 +10,9 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.OreProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
+import com.gregtechceu.gtceu.api.data.worldgen.GTOreDefinition;
+import com.gregtechceu.gtceu.api.data.worldgen.bedrockfluid.BedrockFluidDefinition;
+import com.gregtechceu.gtceu.api.data.worldgen.bedrockore.BedrockOreDefinition;
 import com.gregtechceu.gtceu.api.fluids.FluidState;
 import com.gregtechceu.gtceu.api.fluids.GTFluid;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorage;
@@ -22,7 +25,14 @@ import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.core.mixins.BlockBehaviourAccessor;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
+import com.gregtechceu.gtceu.integration.kjs.GTCEuServerEvents;
+import com.gregtechceu.gtceu.integration.kjs.events.GTBedrockOreVeinEventJS;
+import com.gregtechceu.gtceu.integration.kjs.events.GTFluidVeinEventJS;
+import com.gregtechceu.gtceu.integration.kjs.events.GTOreVeinEventJS;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.packs.VanillaBlockLoot;
@@ -354,6 +364,12 @@ public class MixinHelpers {
         });
     }
 
+    public static void postKJSVeinEvents(RegistryAccess.Frozen registries) {
+        if (GTCEu.Mods.isKubeJSLoaded()) {
+            KJSCallWrapper.postWorldgenEvents(registries);
+        }
+    }
+
     public static void addFluidTexture(Material material, FluidStorage.FluidEntry value) {
         if (value != null) {
             IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(value.getFluid().get());
@@ -361,6 +377,28 @@ public class MixinHelpers {
                 gtExtensions.setFlowingTexture(value.getBuilder().flowing());
                 gtExtensions.setStillTexture(value.getBuilder().still());
             }
+        }
+    }
+
+    private static final class KJSCallWrapper {
+
+        private static <T> void postWorldgenEvents(RegistryAccess.Frozen registries) {
+
+            var ores = (MappedRegistry<GTOreDefinition>)registries.registryOrThrow(GTRegistries.Keys.ORE_VEIN);
+            var bedrockOres = (MappedRegistry<BedrockOreDefinition>)registries.registryOrThrow(GTRegistries.Keys.BEDROCK_ORE);
+            var bedrockFluids = (MappedRegistry<BedrockFluidDefinition>)registries.registryOrThrow(GTRegistries.Keys.BEDROCK_FLUID);
+
+            ores.unfreeze();
+            bedrockOres.unfreeze();
+            bedrockFluids.unfreeze();
+
+            GTCEuServerEvents.ORE_VEIN_MODIFICATION.post(new GTOreVeinEventJS(ores, registries));
+            GTCEuServerEvents.BEDROCK_ORE_VEIN_MODIFICATION.post(new GTBedrockOreVeinEventJS(ores, registries));
+            GTCEuServerEvents.FLUID_VEIN_MODIFICATION.post(new GTFluidVeinEventJS(ores, registries));
+
+            ores.freeze();
+            bedrockOres.freeze();
+            bedrockFluids.freeze();
         }
     }
 }
