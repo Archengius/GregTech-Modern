@@ -44,6 +44,7 @@ import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.core.mixins.registrate.AbstractRegistrateAccessor;
 import com.gregtechceu.gtceu.data.GregTechDatagen;
 import com.gregtechceu.gtceu.data.lang.MaterialLangGenerator;
+import com.gregtechceu.gtceu.data.loot.DungeonLootLoader;
 import com.gregtechceu.gtceu.data.pack.GTDynamicDataPack;
 import com.gregtechceu.gtceu.data.pack.GTDynamicResourcePack;
 import com.gregtechceu.gtceu.data.pack.GTPackSource;
@@ -176,7 +177,7 @@ public class CommonProxy {
         KeyBind.init();
         SyncedKeyMappings.init();
         MachineOwner.init();
-        ChestGenHooks.init(modBus);
+        GTLootItemFunctions.init(modBus);
 
         // MUI stuff
         GuiManager.registerFactory(MachineUIFactory.INSTANCE);
