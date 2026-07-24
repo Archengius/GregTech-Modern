@@ -38,13 +38,8 @@ public abstract class VeinGenerator {
     public static final Codec<VeinGenerator> DIRECT_CODEC = REGISTRY_CODEC.dispatchStable(VeinGenerator::codec,
             Function.identity());
 
-    protected GTOreDefinition entry;
 
     public VeinGenerator() {}
-
-    public VeinGenerator(GTOreDefinition entry) {
-        this.entry = entry;
-    }
 
     /**
      * @return List of [block|material, chance]
@@ -91,11 +86,6 @@ public abstract class VeinGenerator {
     public abstract VeinGenerator build();
 
     public abstract VeinGenerator copy();
-
-    @HideFromJS
-    public GTOreDefinition parent() {
-        return entry;
-    }
 
     public abstract Codec<? extends VeinGenerator> codec();
 
