@@ -34,7 +34,7 @@ public class GTClientCache extends WorldCache implements IClientCache {
         if (player == null) return;
 
         for (var vein : veins) {
-            var veinId = vein.id().toString();
+            var veinId = vein.definition().unwrapKey().orElseThrow().toString();
             var name = Component.translatable(veinId.replace("gtceu:", "gtceu.jei.ore_vein."));
             var material = OreRenderLayer.getMaterial(vein);
 
@@ -73,7 +73,7 @@ public class GTClientCache extends WorldCache implements IClientCache {
     @Override
     public CompoundTag saveDimFile(String prefix, ResourceKey<Level> dim) {
         if (!cache.containsKey(dim)) return null;
-        return cache.get(dim).toNBT(true);
+        return cache.get(dim).toNBT();
     }
 
     @Override

@@ -47,6 +47,6 @@ public class ServerCacheSavedData extends SavedData {
 
     @Override
     public @NotNull CompoundTag save(CompoundTag tag) {
-        return backingCache.toNBT(tag, false);
+        return backingCache.toNBT(tag);
     }
 }

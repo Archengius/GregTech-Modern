@@ -2,6 +2,7 @@ package com.gregtechceu.gtceu.api.cosmetics;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.cosmetics.event.RegisterGTCapesEvent;
+import com.gregtechceu.gtceu.common.commands.GTCommands;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
 import com.gregtechceu.gtceu.common.network.packets.SPacketNotifyCapeChange;
 import com.gregtechceu.gtceu.integration.kjs.GTCEuServerEvents;
@@ -22,8 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-
-import static com.gregtechceu.gtceu.common.commands.GTCommands.ERROR_NO_SUCH_VEIN;
 
 public class CapeRegistry extends SavedData {
 
@@ -199,7 +198,7 @@ public class CapeRegistry extends SavedData {
     @SneakyThrows(CommandSyntaxException.class)
     public static boolean unlockCape(UUID owner, @NotNull ResourceLocation cape) {
         if (!CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
+            throw GTCommands.ERROR_NO_SUCH_CAPE.create(cape.toString());
         }
         Set<ResourceLocation> capes = UNLOCKED_CAPES.computeIfAbsent(owner, CapeRegistry::makeSet);
         if (capes.contains(cape)) {
@@ -219,10 +218,9 @@ public class CapeRegistry extends SavedData {
      * @param cape  The cape to take
      * @see #unlockCape(UUID, ResourceLocation)
      */
-    @SneakyThrows(CommandSyntaxException.class)
-    public static boolean removeCape(UUID owner, @NotNull ResourceLocation cape) {
+    public static boolean removeCape(UUID owner, @NotNull ResourceLocation cape) throws CommandSyntaxException {
         if (!CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
+            throw GTCommands.ERROR_NO_SUCH_CAPE.create(cape.toString());
         }
         if (FREE_CAPES.contains(cape)) {
             return false;
@@ -247,7 +245,7 @@ public class CapeRegistry extends SavedData {
     @SneakyThrows(CommandSyntaxException.class)
     public static void giveRawCape(UUID uuid, @NotNull ResourceLocation cape) {
         if (!CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
+            throw GTCommands.ERROR_NO_SUCH_CAPE.create(cape.toString());
         }
         CURRENT_CAPES.put(uuid, cape);
     }
@@ -258,10 +256,9 @@ public class CapeRegistry extends SavedData {
      * @param player The UUID of the player
      * @param cape   The cape to set, or {@code null} to remove the current cape.
      */
-    @SneakyThrows(CommandSyntaxException.class)
-    public static boolean setActiveCape(UUID player, @Nullable ResourceLocation cape) {
+    public static boolean setActiveCape(UUID player, @Nullable ResourceLocation cape) throws CommandSyntaxException {
         if (cape != null && !CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
+            throw GTCommands.ERROR_NO_SUCH_CAPE.create(cape.toString());
         }
         Set<ResourceLocation> capes = UNLOCKED_CAPES.get(player);
         if (capes == null || cape != null && !capes.contains(cape)) {

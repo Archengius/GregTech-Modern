@@ -3,6 +3,7 @@ package com.gregtechceu.gtceu.common.network.packets;
 import com.gregtechceu.gtceu.api.cosmetics.CapeRegistry;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
