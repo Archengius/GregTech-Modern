@@ -3,7 +3,7 @@ package com.gregtechceu.gtceu.api.data.worldgen.ores;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.data.worldgen.GTOreDefinition;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
-import com.gregtechceu.gtceu.common.data.GTOres;
+import com.gregtechceu.gtceu.common.data.GTOreVeins;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -19,7 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
-import com.google.common.base.Suppliers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -29,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -99,7 +97,7 @@ public class OreVeinUtil {
      *         Depends on the largest registered vein size, as well as the configured random vein offset.
      */
     static int getMaxVeinSearchDistance() {
-        double halfVeinSize = GTOres.getLargestVeinSize() / 2.0;
+        double halfVeinSize = GTOreVeins.getLargestVeinSize() / 2.0;
         int randomOffset = ConfigHolder.INSTANCE.worldgen.oreVeins.oreVeinRandomOffset;
 
         return (int) Math.ceil((halfVeinSize + randomOffset) / 16.0);
@@ -110,7 +108,7 @@ public class OreVeinUtil {
      *         Depends on the largest registered indicator size, as well as the configured random vein offset.
      */
     static int getMaxIndicatorSearchDistance() {
-        return getMaxVeinSearchDistance() + (int) Math.ceil((double) GTOres.getLargestIndicatorOffset() / 16.0);
+        return getMaxVeinSearchDistance() + (int) Math.ceil((double) GTOreVeins.getLargestIndicatorOffset() / 16.0);
     }
 
     @Nullable

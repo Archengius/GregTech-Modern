@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.data.worldgen.bedrockfluid.BedrockFluidDefiniti
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class GTBedrockFluids {
 
-    public static final Map<ResourceLocation, BedrockFluidDefinition> toReRegister = new HashMap<>();
+    public static final Set<ResourceKey<BedrockFluidDefinition>> ALL_KEYS = new ReferenceOpenHashSet<>();
 
     //////////////////////////////////////
     // ******** OVERWORLD ********//
@@ -105,17 +106,12 @@ public class GTBedrockFluids {
                     .depletedYield(40)
                     .dimensions(nether()));
 
-    public static void init() {
-        toReRegister.forEach(GTRegistries.BEDROCK_FLUID_DEFINITIONS::registerOrOverride);
-    }
-
     public static BedrockFluidDefinition create(ResourceLocation id,
                                                 Consumer<BedrockFluidDefinition.Builder> consumer) {
         BedrockFluidDefinition.Builder builder = BedrockFluidDefinition.builder(id);
         consumer.accept(builder);
 
         BedrockFluidDefinition definition = builder.build();
-        toReRegister.put(id, definition);
         return definition;
     }
 

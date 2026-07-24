@@ -8,13 +8,19 @@ import com.gregtechceu.gtceu.api.data.worldgen.generator.indicators.SurfaceIndic
 import com.gregtechceu.gtceu.api.data.worldgen.generator.veins.NoopVeinGenerator;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
@@ -35,7 +41,7 @@ import static com.gregtechceu.gtceu.api.data.worldgen.generator.veins.VeinedVein
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
 
 @SuppressWarnings("unused")
-public class GTOres {
+public class GTOreVeins {
 
     /**
      * The size of the largest registered vein.
@@ -47,7 +53,7 @@ public class GTOres {
     @Getter
     private static int largestIndicatorOffset = 0;
 
-    private static final Map<ResourceLocation, GTOreDefinition> toReRegister = new HashMap<>();
+    public static final Set<ResourceKey<GTOreDefinition>> ALL_KEYS = new ReferenceOpenHashSet<>();
 
     //////////////////////////////////////
     // ******** End Vein *********//
@@ -730,19 +736,17 @@ public class GTOres {
         return block;
     }
 
-    public static void init() {
-        toReRegister.forEach(GTRegistries.ORE_VEINS::registerOrOverride);
-    }
-
-    public static void updateLargestVeinSize() {
+    public static void updateLargestVeinSize(HolderLookup.RegistryLookup<GTOreDefinition> lookup) {
         // map to average of min & max values.
-        GTOres.largestVeinSize = GTRegistries.ORE_VEINS.values().stream()
+        GTOreVeins.largestVeinSize = lookup.listElements()
+                .map(Holder::value)
                 .map(GTOreDefinition::clusterSize)
                 .mapToInt(intProvider -> (intProvider.getMinValue() + intProvider.getMaxValue()) / 2)
                 .max()
                 .orElse(0);
 
-        GTOres.largestIndicatorOffset = GTRegistries.ORE_VEINS.values().stream()
+        GTOreVeins.largestIndicatorOffset = lookup.listElements()
+                .map(Holder::value)
                 .flatMapToInt(definition -> definition.indicatorGenerators().stream()
                         .mapToInt(indicatorGenerator -> indicatorGenerator.getSearchRadiusModifier(
                                 (int) Math.ceil(definition.clusterSize().getMinValue() / 2.0))))
@@ -750,11 +754,17 @@ public class GTOres {
                 .orElse(0);
     }
 
-    public static GTOreDefinition blankOreDefinition() {
+    public static ResourceKey<GTOreDefinition> create(ResourceLocation id) {
+        var key = ResourceKey.create(GTRegistries.Keys.ORE_VEIN, id);
+        ALL_KEYS.add(key);
+        return key;
+    }
+
+    public static GTOreDefinition blankOreDefinition(HolderGetter<Biome> biomeLookup) {
         return new GTOreDefinition(
                 ConstantInt.ZERO, 0, 0, IWorldGenLayer.NOWHERE, Set.of(),
                 HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.absolute(0)),
-                0, HolderSet::direct, BiomeWeightModifier.EMPTY, NoopVeinGenerator.INSTANCE,
-                new ArrayList<>());
+                0, HolderSet.direct(), BiomeWeightModifier.EMPTY, NoopVeinGenerator.INSTANCE,
+                new ArrayList<>(), biomeLookup);
     }
 }

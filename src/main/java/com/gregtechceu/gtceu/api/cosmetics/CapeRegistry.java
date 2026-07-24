@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.gregtechceu.gtceu.common.commands.GTCommands.ERROR_NO_SUCH_CAPE;
+import static com.gregtechceu.gtceu.common.commands.GTCommands.ERROR_NO_SUCH_VEIN;
 
 public class CapeRegistry extends SavedData {
 
@@ -199,7 +199,7 @@ public class CapeRegistry extends SavedData {
     @SneakyThrows(CommandSyntaxException.class)
     public static boolean unlockCape(UUID owner, @NotNull ResourceLocation cape) {
         if (!CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_CAPE.create(cape.toString());
+            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
         }
         Set<ResourceLocation> capes = UNLOCKED_CAPES.computeIfAbsent(owner, CapeRegistry::makeSet);
         if (capes.contains(cape)) {
@@ -222,7 +222,7 @@ public class CapeRegistry extends SavedData {
     @SneakyThrows(CommandSyntaxException.class)
     public static boolean removeCape(UUID owner, @NotNull ResourceLocation cape) {
         if (!CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_CAPE.create(cape.toString());
+            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
         }
         if (FREE_CAPES.contains(cape)) {
             return false;
@@ -247,7 +247,7 @@ public class CapeRegistry extends SavedData {
     @SneakyThrows(CommandSyntaxException.class)
     public static void giveRawCape(UUID uuid, @NotNull ResourceLocation cape) {
         if (!CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_CAPE.create(cape.toString());
+            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
         }
         CURRENT_CAPES.put(uuid, cape);
     }
@@ -261,7 +261,7 @@ public class CapeRegistry extends SavedData {
     @SneakyThrows(CommandSyntaxException.class)
     public static boolean setActiveCape(UUID player, @Nullable ResourceLocation cape) {
         if (cape != null && !CapeRegistry.ALL_CAPES.containsKey(cape)) {
-            throw ERROR_NO_SUCH_CAPE.create(cape.toString());
+            throw ERROR_NO_SUCH_VEIN.create(cape.toString());
         }
         Set<ResourceLocation> capes = UNLOCKED_CAPES.get(player);
         if (capes == null || cape != null && !capes.contains(cape)) {

@@ -41,9 +41,6 @@ import com.gregtechceu.gtceu.common.network.packets.hazard.SPacketAddHazardZone;
 import com.gregtechceu.gtceu.common.network.packets.hazard.SPacketRemoveHazardZone;
 import com.gregtechceu.gtceu.common.network.packets.hazard.SPacketSyncLevelHazards;
 import com.gregtechceu.gtceu.config.ConfigHolder;
-import com.gregtechceu.gtceu.data.loader.BedrockFluidLoader;
-import com.gregtechceu.gtceu.data.loader.BedrockOreLoader;
-import com.gregtechceu.gtceu.data.loader.GTOreLoader;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 import com.gregtechceu.gtceu.integration.map.ClientCacheManager;
 import com.gregtechceu.gtceu.integration.map.WaypointManager;
@@ -245,15 +242,6 @@ public class CommonEventListener {
         GTCommands.register(event.getDispatcher(), event.getBuildContext());
         MedicalConditionCommands.register(event.getDispatcher(), event.getBuildContext());
         HazardCommands.register(event.getDispatcher(), event.getBuildContext());
-    }
-
-    @SubscribeEvent
-    public static void registerReloadListeners(AddReloadListenerEvent event) {
-        GTRegistries.updateFrozenRegistry(event.getRegistryAccess());
-
-        event.addListener(new GTOreLoader());
-        event.addListener(new BedrockFluidLoader());
-        event.addListener(new BedrockOreLoader());
     }
 
     @SubscribeEvent

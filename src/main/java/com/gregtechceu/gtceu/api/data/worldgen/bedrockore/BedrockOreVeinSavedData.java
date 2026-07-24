@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.data.worldgen.WorldGeneratorUtils;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
+import com.gregtechceu.gtceu.utils.GTMath;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
@@ -54,7 +56,7 @@ public class BedrockOreVeinSavedData extends SavedData {
         for (Tag tag : list) {
             if (tag instanceof CompoundTag compoundTag) {
                 var chunkPos = new ChunkPos(compoundTag.getLong("pos"));
-                veinOres.put(chunkPos, OreVeinWorldEntry.readFromNBT(compoundTag.getCompound("data")));
+                veinOres.put(chunkPos, OreVeinWorldEntry.readFromNBT(compoundTag.getCompound("data"), serverLevel.registryAccess()));
             }
         }
     }
@@ -93,23 +95,31 @@ public class BedrockOreVeinSavedData extends SavedData {
                 return entry;
             }
 
-            BedrockOreDefinition definition = null;
-            int query = new XoroshiroRandomSource(
-                    serverLevel.getSeed() ^ ChunkPos.asLong(getVeinCoord(chunkX), getVeinCoord(chunkZ)))
+            Holder<BedrockOreDefinition> definition = null;
+            int query = RandomSource
+                    .create(GTMath.hashLongs(serverLevel.getSeed(), getVeinCoord(chunkX), getVeinCoord(chunkZ)))
                     .nextInt();
             var biome = serverLevel.getBiome(new BlockPos(chunkX << 4, 64, chunkZ << 4));
             int totalWeight = getTotalWeight(biome);
             if (totalWeight > 0) {
                 int weight = Math.abs(query % totalWeight);
-                for (var oreDefinition : GTRegistries.BEDROCK_ORE_DEFINITIONS) {
-                    int veinWeight = oreDefinition.weight() + (oreDefinition.biomeWeightModifier() != null ?
-                            oreDefinition.biomeWeightModifier().applyAsInt(biome) : 0);
+                var registry = serverLevel.registryAccess()
+                        .registryOrThrow(GTRegistries.Keys.BEDROCK_ORE)
+                        .asHolderIdMap();
+                for (var holder : registry) {
+                    var oreDefinition = holder.value();
+                    if (!oreDefinition.canGenerate()) {
+                        continue;
+                    }
+                    int veinWeight = oreDefinition.weight() + oreDefinition.biomeWeightModifier().applyAsInt(biome);
                     if (veinWeight > 0 &&
-                            (oreDefinition.dimensionFilter == null || oreDefinition.dimensionFilter().stream().anyMatch(
-                                    dim -> WorldGeneratorUtils.isSameDimension(dim, serverLevel.dimension())))) {
+                            (oreDefinition.dimensionFilter().isEmpty() ||
+                                    oreDefinition.dimensionFilter().stream().anyMatch(
+                                            dim -> WorldGeneratorUtils.isSameDimension(dim,
+                                                    serverLevel.dimension())))) {
                         weight -= veinWeight;
                         if (weight < 0) {
-                            definition = oreDefinition;
+                            definition = holder;
                             break;
                         }
                     }
@@ -127,8 +137,9 @@ public class BedrockOreVeinSavedData extends SavedData {
         return veinOres.get(pos);
     }
 
-    public void createVein(ChunkPos pos, @Nullable BedrockOreDefinition definition) {
-        if (definition != null) {
+    public void createVein(ChunkPos pos, @Nullable Holder<BedrockOreDefinition> holder) {
+        if (holder != null) {
+            BedrockOreDefinition definition = holder.value();
             int radius = definition.size() / 2;
             for (int x = pos.x - radius; x <= pos.x + radius; ++x) {
                 for (int z = pos.z - radius; z <= pos.z + radius; ++z) {
@@ -137,7 +148,8 @@ public class BedrockOreVeinSavedData extends SavedData {
                     distanceFromOriginal = distanceFromOriginal == 0 ? 1 : distanceFromOriginal;
                     distanceFromOriginal = (float) Math.pow(distanceFromOriginal, 2);
 
-                    var random = new XoroshiroRandomSource(serverLevel.getSeed() ^ pos2.toLong());
+                    var random = RandomSource
+                            .create(31L * 31 * pos2.x + pos2.z * 31L + Long.hashCode(serverLevel.getSeed()));
 
                     int maximumYield;
                     if ((definition.yield().getMaxValue() - definition.yield().getMinValue()) / distanceFromOriginal <=
@@ -150,7 +162,7 @@ public class BedrockOreVeinSavedData extends SavedData {
                     }
                     maximumYield = Math.min(maximumYield, definition.yield().getMaxValue());
 
-                    veinOres.put(pos2, new OreVeinWorldEntry(definition, maximumYield, MAXIMUM_VEIN_OPERATIONS));
+                    veinOres.put(pos2, new OreVeinWorldEntry(holder, maximumYield, MAXIMUM_VEIN_OPERATIONS));
                 }
             }
         }
@@ -165,11 +177,13 @@ public class BedrockOreVeinSavedData extends SavedData {
     public int getTotalWeight(Holder<Biome> biome) {
         return biomeWeights.computeIfAbsent(biome, b -> {
             int totalWeight = 0;
-            for (var definition : GTRegistries.BEDROCK_ORE_DEFINITIONS) {
-                if (definition.dimensionFilter == null || definition.dimensionFilter().stream()
+            for (var definition : serverLevel.registryAccess().registryOrThrow(GTRegistries.Keys.BEDROCK_ORE)) {
+                if (!definition.canGenerate()) {
+                    continue;
+                }
+                if (definition.dimensionFilter().isEmpty() || definition.dimensionFilter().stream()
                         .anyMatch(dim -> WorldGeneratorUtils.isSameDimension(dim, serverLevel.dimension()))) {
-                    totalWeight += definition.biomeWeightModifier() != null ?
-                            definition.biomeWeightModifier().applyAsInt(biome) : 0;
+                    totalWeight += definition.biomeWeightModifier().applyAsInt(biome);
                     totalWeight += definition.weight();
                 }
             }
@@ -198,7 +212,7 @@ public class BedrockOreVeinSavedData extends SavedData {
     public int getDepletedOreYield(int chunkX, int chunkZ) {
         OreVeinWorldEntry info = getOreVeinWorldEntry(chunkX, chunkZ);
         if (info.getDefinition() == null) return 0;
-        return info.getDefinition().depletedYield();
+        return info.getDefinition().value().depletedYield();
     }
 
     /**
@@ -223,7 +237,7 @@ public class BedrockOreVeinSavedData extends SavedData {
     public List<WeightedMaterial> getOreInChunk(int chunkX, int chunkZ) {
         OreVeinWorldEntry info = getOreVeinWorldEntry(chunkX, chunkZ);
         if (info.getDefinition() == null) return null;
-        return info.getDefinition().materials();
+        return info.getDefinition().value().materials();
     }
 
     /**
@@ -245,14 +259,14 @@ public class BedrockOreVeinSavedData extends SavedData {
             return;
         }
 
-        BedrockOreDefinition definition = info.getDefinition();
+        Holder<BedrockOreDefinition> definition = info.getDefinition();
 
         // prevent division by zero, veins that never deplete don't need updating
-        if (definition == null || definition.depletionChance() == 0)
+        if (definition == null || definition.value().depletionChance() == 0)
             return;
 
-        if (definition.depletionChance() == 100 || GTValues.RNG.nextInt(100) <= definition.depletionChance()) {
-            info.decreaseOperations(definition.depletionAmount());
+        if (definition.value().depletionChance() == 100 || GTValues.RNG.nextInt(100) <= definition.value().depletionChance()) {
+            info.decreaseOperations(definition.value().depletionAmount());
             setDirty();
         }
     }

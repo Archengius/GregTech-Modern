@@ -149,14 +149,7 @@ public class GTOreDefinition {
     }
 
     public int weightForBiome(Holder<Biome> biome) {
-        int w = weight;
-        if (biomeWeightModifier != null) w += biomeWeightModifier.applyAsInt(biome);
-        return w;
-    }
-
-    @HideFromJS
-    public void register(ResourceLocation id) {
-        GTRegistries.ORE_VEINS.registerOrOverride(id, this);
+        return weight + biomeWeightModifier.applyAsInt(biome);
     }
 
     public GTOreDefinition clusterSize(IntProvider clusterSize) {
@@ -353,6 +346,13 @@ public class GTOreDefinition {
         var generator = constructor.get();
         indicatorGenerators.add(generator);
         return generator;
+    }
+
+    public boolean canGenerate() {
+        if (this.veinGenerator() instanceof NoopVeinGenerator) {
+            return false;
+        }
+        return this.weight() > 0 || !this.biomeWeightModifier().isEmpty();
     }
 
     private static class InferredProperties {

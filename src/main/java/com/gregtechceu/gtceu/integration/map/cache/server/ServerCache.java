@@ -2,8 +2,8 @@ package com.gregtechceu.gtceu.integration.map.cache.server;
 
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.data.worldgen.GTOreDefinition;
 import com.gregtechceu.gtceu.api.data.worldgen.ores.GeneratedVeinMetadata;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
 import com.gregtechceu.gtceu.common.network.packets.prospecting.SPacketProspectOre;
 import com.gregtechceu.gtceu.config.ConfigHolder;
@@ -68,7 +68,7 @@ public class ServerCache extends WorldCache {
         List<GeneratedVeinMetadata> nearbyVeins = getNearbyVeins(dim, pos, radius);
         List<GeneratedVeinMetadata> foundVeins = new ArrayList<>();
         for (GeneratedVeinMetadata nearbyVein : nearbyVeins) {
-            for (var gen : nearbyVein.definition().indicatorGenerators()) {
+            for (var gen : nearbyVein.definition().value().indicatorGenerators()) {
                 var block = gen.block();
                 if (block == null) continue;
                 boolean found = block.map(state -> {
@@ -91,20 +91,21 @@ public class ServerCache extends WorldCache {
         List<GeneratedVeinMetadata> nearbyVeins = getNearbyVeins(dim, origin, radius);
         List<GeneratedVeinMetadata> foundVeins = new ArrayList<>();
         for (GeneratedVeinMetadata nearbyVein : nearbyVeins) {
-            if (nearbyVein.definition().veinGenerator().getAllMaterials().contains(material)) {
+            if (nearbyVein.definition().value().veinGenerator().getAllMaterials().contains(material)) {
                 foundVeins.add(nearbyVein);
             }
         }
         GTNetwork.sendToPlayer(player, new SPacketProspectOre(dim, foundVeins));
     }
 
-    public void prospectByDepositName(ResourceKey<Level> dim, String depositName, BlockPos origin, ServerPlayer player,
+    public void prospectByDepositName(ResourceKey<Level> dim, ResourceKey<GTOreDefinition> veinId, BlockPos origin,
+                                      ServerPlayer player,
                                       int radius) {
         if (radius <= 0) return;
         List<GeneratedVeinMetadata> nearbyVeins = getNearbyVeins(dim, origin, radius);
         List<GeneratedVeinMetadata> foundVeins = new ArrayList<>();
         for (GeneratedVeinMetadata nearbyVein : nearbyVeins) {
-            if (GTRegistries.ORE_VEINS.getKey(nearbyVein.definition()).toString().equals(depositName)) {
+            if (veinId.equals(nearbyVein.definition().unwrapKey().orElseThrow())) {
                 foundVeins.add(nearbyVein);
             }
         }

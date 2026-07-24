@@ -7,7 +7,6 @@ import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.IFilterType;
 import com.gregtechceu.gtceu.api.machine.multiblock.IBatteryData;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
-import com.gregtechceu.gtceu.api.registry.GTRegistry;
 import com.gregtechceu.gtceu.common.block.BatteryBlock;
 import com.gregtechceu.gtceu.common.block.CoilBlock;
 import com.gregtechceu.gtceu.config.ConfigHolder;
@@ -58,24 +57,15 @@ public class GTCEuAPI {
     @SuppressWarnings("unused")
     public static class RegisterEvent<K, V> extends GenericEvent<V> implements IModBusEvent {
 
-        private final @Nullable GTRegistry<ResourceLocation, V> registry;
-        private final @Nullable Registry<V> mcRegistry;
+        private final Registry<V> mcRegistry;
 
         public RegisterEvent(MappedRegistry<V> registry, Class<V> clazz) {
             super(clazz);
-            this.registry = null;
             this.mcRegistry = registry;
         }
 
-        public RegisterEvent(GTRegistry<ResourceLocation, V> registry, Class<V> clazz) {
-            super(clazz);
-            this.registry = registry;
-            this.mcRegistry = null;
-        }
-
         public void register(ResourceLocation key, V value) {
-            if (registry != null) registry.register(key, value);
-            if (mcRegistry != null) GTRegistries.register(mcRegistry, key, value);
+            GTRegistries.register(mcRegistry, key, value);
         }
     }
 }

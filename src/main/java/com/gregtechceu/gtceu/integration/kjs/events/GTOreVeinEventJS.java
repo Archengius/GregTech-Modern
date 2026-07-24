@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.api.data.worldgen.GTOreDefinition;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.veins.NoopVeinGenerator;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
-import com.gregtechceu.gtceu.common.data.GTOres;
+import com.gregtechceu.gtceu.common.data.GTOreVeins;
 import com.mojang.serialization.Lifecycle;
 import dev.latvian.mods.kubejs.event.EventJS;
 import dev.latvian.mods.kubejs.util.ConsoleJS;
@@ -34,7 +34,7 @@ public class GTOreVeinEventJS extends EventJS {
     public void add(Context cx, ResourceLocation id, Consumer<GTOreDefinition> consumer) {
         var biomes = UtilsJS.staticRegistryAccess.lookupOrThrow(Registries.BIOME);
 
-        GTOreDefinition vein = GTOres.blankOreDefinition(biomes);
+        GTOreDefinition vein = GTOreVeins.blankOreDefinition(biomes);
         consumer.accept(vein);
         register(id, vein);
     }
@@ -82,7 +82,7 @@ public class GTOreVeinEventJS extends EventJS {
             return;
         }
         // blank out the vein info because we can't remove from the registry
-        var holder = registry.getHolderOrThrow(GTOres.create(id));
+        var holder = registry.getHolderOrThrow(GTOreVeins.create(id));
         holder.value().veinGenerator(NoopVeinGenerator.INSTANCE);
         holder.value().biomeWeightModifier(BiomeWeightModifier.EMPTY);
         holder.value().weight(0);
