@@ -274,11 +274,11 @@ public class CommonProxy {
     @SubscribeEvent
     public static void registerDataPackRegistries(DataPackRegistryEvent.NewRegistry event) {
          event.dataPackRegistry(GTRegistries.Keys.ORE_VEIN,
-            GTOreDefinition.CODEC, GTOreDefinition.CODEC);
+            GTOreDefinition.DIRECT_CODEC, GTOreDefinition.DIRECT_CODEC);
          event.dataPackRegistry(GTRegistries.Keys.BEDROCK_FLUID,
-            BedrockFluidDefinition.FULL_CODEC, BedrockFluidDefinition.FULL_CODEC);
+            BedrockFluidDefinition.DIRECT_CODEC, BedrockFluidDefinition.DIRECT_CODEC);
          event.dataPackRegistry(GTRegistries.Keys.BEDROCK_ORE,
-            BedrockOreDefinition.FULL_CODEC, BedrockOreDefinition.FULL_CODEC);
+            BedrockOreDefinition.DIRECT_CODEC, BedrockOreDefinition.DIRECT_CODEC);
     }
 
     @SubscribeEvent

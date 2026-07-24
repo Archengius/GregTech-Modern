@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Accessors(fluent = true, chain = true)
 public class BedrockOreDefinition {
 
-    public static final Codec<BedrockOreDefinition> FULL_CODEC = RecordCodecBuilder.create(
+    public static final Codec<BedrockOreDefinition> DIRECT_CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                     Codec.INT.fieldOf("weight").forGetter(ft -> ft.weight),
                     Codec.INT.fieldOf("size").forGetter(ft -> ft.size),

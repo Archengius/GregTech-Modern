@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.client.ClientProxy;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -135,7 +136,7 @@ public class OreVeinRecipeWidget extends ParentWidget<OreVeinRecipeWidget> {
 
     @SuppressWarnings("all")
     private static String range(GTOreDefinition oreDefinition) {
-        HeightProvider height = oreDefinition.range().height;
+        HeightProvider height = oreDefinition.heightRange().height;
         int minHeight = 0, maxHeight = 0;
         if (height instanceof UniformHeight uniform) {
             minHeight = uniform.minInclusive.resolveY(null);
@@ -181,18 +182,21 @@ public class OreVeinRecipeWidget extends ParentWidget<OreVeinRecipeWidget> {
     }
 
     public static String getOreName(GTOreDefinition oreDefinition) {
-        ResourceLocation id = ClientProxy.CLIENT_ORE_VEINS.inverse().get(oreDefinition);
-        return "gtceu.jei.ore_vein." + id.getPath();
+        ResourceLocation id = Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                .registryOrThrow(GTRegistries.Keys.ORE_VEIN).getKey(oreDefinition);
+        return "gtceu.jei.ore_vein." + Objects.requireNonNull(id).getPath();
     }
 
     public static String getFluidName(BedrockFluidDefinition fluid) {
-        ResourceLocation id = ClientProxy.CLIENT_FLUID_VEINS.inverse().get(fluid);
-        return "gtceu.jei.bedrock_fluid." + id.getPath();
+        ResourceLocation id = Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                .registryOrThrow(GTRegistries.Keys.BEDROCK_FLUID).getKey(fluid);
+        return "gtceu.jei.bedrock_fluid." + Objects.requireNonNull(id).getPath();
     }
 
     public static String getBedrockOreName(BedrockOreDefinition oreDefinition) {
-        ResourceLocation id = ClientProxy.CLIENT_BEDROCK_ORE_VEINS.inverse().get(oreDefinition);
-        return "gtceu.jei.bedrock_ore." + id.getPath();
+        ResourceLocation id = Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                .registryOrThrow(GTRegistries.Keys.BEDROCK_ORE).getKey(oreDefinition);
+        return "gtceu.jei.bedrock_ore." + Objects.requireNonNull(id).getPath();
     }
 
     private static String veinYield(BedrockFluidDefinition fluidDefinition) {

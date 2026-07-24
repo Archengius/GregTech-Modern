@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.data.worldgen.GTOreDefinition;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.client.ClientProxy;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Accessors(fluent = true)
@@ -25,10 +27,12 @@ public final class GeneratedVeinMetadata {
     public static final Codec<ChunkPos> CHUNK_POS_CODEC = Codec.LONG.xmap(ChunkPos::new, ChunkPos::toLong);
     public static final Codec<GTOreDefinition> CLIENT_DEFINITION_CODEC = ResourceLocation.CODEC
             .flatXmap(
-                    rl -> Optional.ofNullable(ClientProxy.CLIENT_ORE_VEINS.get(rl)).map(DataResult::success)
+                    rl -> Optional.ofNullable(Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                                    .registryOrThrow(GTRegistries.Keys.ORE_VEIN).get(rl)).map(DataResult::success)
                             .orElseGet(() -> DataResult
                                     .error(() -> "Unknown registry key in client ore veins: " + rl)),
-                    obj -> Optional.ofNullable(ClientProxy.CLIENT_ORE_VEINS.inverse().get(obj)).map(DataResult::success)
+                    obj -> Optional.ofNullable(Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                                    .registryOrThrow(GTRegistries.Keys.ORE_VEIN).getKey(obj)).map(DataResult::success)
                             .orElseGet(() -> DataResult.error(
                                     () -> "Unknown registry element in client ore veins: " + obj)));
 
@@ -88,8 +92,9 @@ public final class GeneratedVeinMetadata {
         ResourceLocation id = buf.readResourceLocation();
         ChunkPos origin = new ChunkPos(buf.readVarLong());
         BlockPos center = BlockPos.of(buf.readVarLong());
-        GTOreDefinition def = ClientProxy.CLIENT_ORE_VEINS.get(buf.readResourceLocation());
-        return new GeneratedVeinMetadata(id, origin, center, def, false);
+        GTOreDefinition def = Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                .registryOrThrow(GTRegistries.Keys.ORE_VEIN).get(buf.readResourceLocation());
+        return new GeneratedVeinMetadata(id, origin, center, Objects.requireNonNull(def), false);
     }
 
     public void writeToPacket(FriendlyByteBuf buf) {

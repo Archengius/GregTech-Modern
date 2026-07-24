@@ -70,6 +70,6 @@ public class BedrockFluidLoader extends SimpleJsonResourceReloadListener {
     }
 
     public static BedrockFluidDefinition fromJson(ResourceLocation id, JsonObject json, RegistryOps<JsonElement> ops) {
-        return BedrockFluidDefinition.FULL_CODEC.parse(ops, json).getOrThrow(false, LOGGER::error);
+        return BedrockFluidDefinition.DIRECT_CODEC.parse(ops, json).getOrThrow(false, LOGGER::error);
     }
 }

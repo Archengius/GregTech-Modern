@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.data.worldgen.ores.GeneratedVeinMetadata;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.client.ClientProxy;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.config.ConfigHolder;
@@ -11,6 +12,7 @@ import com.gregtechceu.gtceu.integration.map.GenericMapRenderer;
 import com.gregtechceu.gtceu.integration.map.layer.MapRenderLayer;
 import com.gregtechceu.gtceu.integration.recipeviewer.widgets.OreVeinRecipeWidget;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class OreRenderLayer extends MapRenderLayer {
@@ -35,7 +38,8 @@ public class OreRenderLayer extends MapRenderLayer {
     public static Component getName(GeneratedVeinMetadata vein) {
         // noinspection ConstantValue IDK, it crashed
         if (vein == null || vein.definition() == null ||
-                ClientProxy.CLIENT_ORE_VEINS.inverse().get(vein.definition()) == null) {
+                Objects.requireNonNull(Minecraft.getInstance().level).registryAccess()
+                        .registryOrThrow(GTRegistries.Keys.ORE_VEIN).getKey(vein.definition()) == null) {
             return Component.translatable("gtceu.minimap.ore_vein.depleted");
         }
         return Component.translatable(OreVeinRecipeWidget.getOreName(vein.definition()));

@@ -84,10 +84,6 @@ public class ClientProxy extends CommonProxy {
     @Getter
     private static final Timer timer60Fps = new Timer(60f, 0);
 
-    public static final BiMap<ResourceLocation, GTOreDefinition> CLIENT_ORE_VEINS = HashBiMap.create();
-    public static final BiMap<ResourceLocation, BedrockFluidDefinition> CLIENT_FLUID_VEINS = HashBiMap.create();
-    public static final BiMap<ResourceLocation, BedrockOreDefinition> CLIENT_BEDROCK_ORE_VEINS = HashBiMap.create();
-
     public ClientProxy() {
         super();
         init();

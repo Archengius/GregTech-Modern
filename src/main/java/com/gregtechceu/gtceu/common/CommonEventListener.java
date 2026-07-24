@@ -37,9 +37,6 @@ import com.gregtechceu.gtceu.common.item.behavior.ToggleEnergyConsumerBehavior;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
 import com.gregtechceu.gtceu.common.network.packets.SPacketSendWorldID;
-import com.gregtechceu.gtceu.common.network.packets.SPacketSyncBedrockOreVeins;
-import com.gregtechceu.gtceu.common.network.packets.SPacketSyncFluidVeins;
-import com.gregtechceu.gtceu.common.network.packets.SPacketSyncOreVeins;
 import com.gregtechceu.gtceu.common.network.packets.hazard.SPacketAddHazardZone;
 import com.gregtechceu.gtceu.common.network.packets.hazard.SPacketRemoveHazardZone;
 import com.gregtechceu.gtceu.common.network.packets.hazard.SPacketSyncLevelHazards;
@@ -327,24 +324,6 @@ public class CommonEventListener {
             }
             CapeRegistry.detectNewCapes(serverPlayer);
             CapeRegistry.loadCurrentCapesOnLogin(serverPlayer);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onDatapackSync(OnDatapackSyncEvent event) {
-        ServerPlayer player = event.getPlayer();
-        if (player == null) {
-            // if player == null, the /reload command was ran. sync to all players.
-            GTNetwork.sendToAll(new SPacketSyncOreVeins(GTRegistries.ORE_VEINS.registry()));
-            GTNetwork.sendToAll(new SPacketSyncFluidVeins(GTRegistries.BEDROCK_FLUID_DEFINITIONS.registry()));
-            GTNetwork.sendToAll(new SPacketSyncBedrockOreVeins(GTRegistries.BEDROCK_ORE_DEFINITIONS.registry()));
-        } else {
-            // else it's a player logging in. sync to only that player.
-            GTNetwork.sendToPlayer(player, new SPacketSyncOreVeins(GTRegistries.ORE_VEINS.registry()));
-            GTNetwork.sendToPlayer(player,
-                    new SPacketSyncFluidVeins(GTRegistries.BEDROCK_FLUID_DEFINITIONS.registry()));
-            GTNetwork.sendToPlayer(player,
-                    new SPacketSyncBedrockOreVeins(GTRegistries.BEDROCK_ORE_DEFINITIONS.registry()));
         }
     }
 

@@ -114,15 +114,15 @@ public class OreVeinUtil {
     }
 
     @Nullable
-    public static Supplier<HolderSet<Biome>> resolveBiomes(List<String> biomes) {
+    public static HolderSet<Biome> resolveBiomes(List<String> biomes) {
         if (biomes.isEmpty())
             return null;
 
         RegistryOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, GTRegistries.builtinRegistry());
         JsonElement codecInput = resolveBiomeCodecInput(biomes);
-        return Suppliers.memoize(() -> RegistryCodecs.homogeneousList(Registries.BIOME)
+        return RegistryCodecs.homogeneousList(Registries.BIOME)
                 .parse(registryOps, codecInput)
-                .getOrThrow(false, GTCEu.LOGGER::error));
+                .getOrThrow(false, GTCEu.LOGGER::error);
     }
 
     private static JsonElement resolveBiomeCodecInput(List<String> biomes) {
