@@ -35,7 +35,7 @@ public class GTPlacements {
 
         PlacementUtils.register(ctx, RUBBER_CHECKED, featureLookup.getOrThrow(GTConfiguredFeatures.RUBBER),
                 new BiomePlacement(List.of(
-                        new BiomeWeightModifier(() -> biomeLookup.getOrThrow(CustomTags.IS_SWAMP), 50))),
+                        new BiomeWeightModifier(biomeLookup.getOrThrow(CustomTags.IS_SWAMP), 50))),
                 RubberTreeChancePlacement.INSTANCE,
                 InSquarePlacement.spread(),
                 SurfaceWaterDepthFilter.forMaxDepth(0),

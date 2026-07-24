@@ -341,7 +341,7 @@ public class GTOreDefinition {
     }
 
     private <T extends IndicatorGenerator> T getOrCreateIndicatorGenerator(Class<T> indicatorClass,
-                                                                           Function<GTOreDefinition, T> constructor) {
+                                                                           Supplier<T> constructor) {
         T existingGenerator = indicatorGenerators.stream()
                 .filter(indicatorClass::isInstance)
                 .map(indicatorClass::cast)
@@ -350,7 +350,7 @@ public class GTOreDefinition {
         if (existingGenerator != null)
             return existingGenerator;
 
-        var generator = constructor.apply(this);
+        var generator = constructor.get();
         indicatorGenerators.add(generator);
         return generator;
     }

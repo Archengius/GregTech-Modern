@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class VeinGenerators {
 
     public static final Codec<NoopVeinGenerator> NO_OP = register(GTCEu.id("no_op"), NoopVeinGenerator.CODEC,
-            entry -> NoopVeinGenerator.INSTANCE);
+            () -> NoopVeinGenerator.INSTANCE);
 
     public static final Codec<StandardVeinGenerator> STANDARD = register(GTCEu.id("standard"),
             StandardVeinGenerator.CODEC, StandardVeinGenerator::new);

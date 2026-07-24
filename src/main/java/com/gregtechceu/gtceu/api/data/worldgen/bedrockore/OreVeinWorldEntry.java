@@ -48,8 +48,7 @@ public class OreVeinWorldEntry {
         return tag;
     }
 
-    @NotNull
-    public static OreVeinWorldEntry readFromNBT(@NotNull CompoundTag tag) {
+    public static OreVeinWorldEntry readFromNBT(CompoundTag tag) {
         OreVeinWorldEntry info = new OreVeinWorldEntry();
         info.oreYield = tag.getInt("oreYield");
         info.operationsRemaining = tag.getInt("operationsRemaining");

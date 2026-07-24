@@ -59,11 +59,6 @@ public abstract class IndicatorGenerator {
     public abstract Map<ChunkPos, OreIndicatorPlacer> generate(WorldGenLevel level, RandomSource random,
                                                                GeneratedVeinMetadata metadata);
 
-    @HideFromJS
-    public GTOreDefinition parent() {
-        return entry;
-    }
-
     @Nullable
     public abstract Either<BlockState, Material> block();
 

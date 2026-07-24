@@ -78,7 +78,7 @@ public class GTBedrockFluidDisplayCategory extends
         @Override
         public @NotNull List<EntryIngredient> getOutputEntries() {
             List<EntryIngredient> outputs = new ArrayList<>();
-            outputs.add(EntryIngredients.of(fluid.getStoredFluid().get()));
+            outputs.add(EntryIngredients.of(fluid.getStoredFluid()));
             return outputs;
         }
     }
