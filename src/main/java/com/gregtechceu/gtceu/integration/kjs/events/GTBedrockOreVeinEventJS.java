@@ -1,29 +1,86 @@
 package com.gregtechceu.gtceu.integration.kjs.events;
 
+import com.gregtechceu.gtceu.api.data.worldgen.BiomeWeightModifier;
 import com.gregtechceu.gtceu.api.data.worldgen.bedrockore.BedrockOreDefinition;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
+import com.gregtechceu.gtceu.integration.kjs.builders.worldgen.BedrockOreDefinitionBuilderJS;
 
+import com.mojang.serialization.Lifecycle;
+import dev.latvian.mods.kubejs.event.EventJS;
+import dev.latvian.mods.kubejs.script.ConsoleLine;
+import dev.latvian.mods.kubejs.util.ConsoleJS;
+import net.minecraft.core.WritableRegistry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import dev.latvian.mods.kubejs.event.EventJS;
+import dev.latvian.mods.rhino.Context;
 
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 public class GTBedrockOreVeinEventJS extends EventJS {
 
-    public GTBedrockOreVeinEventJS() {}
+    private final WritableRegistry<BedrockOreDefinition> registry;
 
-    public void add(ResourceLocation id, Consumer<BedrockOreDefinition.Builder> consumer) {
-        BedrockOreDefinition.Builder builder = BedrockOreDefinition.builder(id);
+    public GTBedrockOreVeinEventJS(WritableRegistry<BedrockOreDefinition> registry) {
+        this.registry = registry;
+    }
+
+    public void add(Context cx, ResourceLocation id, Consumer<BedrockOreDefinitionBuilderJS> consumer) {
+        BedrockOreDefinitionBuilderJS builder = new BedrockOreDefinitionBuilderJS(id);
         consumer.accept(builder);
-        builder.register();
+        register(id, builder.createObject());
     }
 
-    public void remove(ResourceLocation id) {
-        GTRegistries.BEDROCK_ORE_DEFINITIONS.remove(id);
+    private void register(ResourceLocation id, BedrockOreDefinition def) {
+        registry.register(createKey(id), def, Lifecycle.stable());
     }
 
-    public void modify(ResourceLocation id, Consumer<BedrockOreDefinition> consumer) {
-        consumer.accept(GTRegistries.BEDROCK_ORE_DEFINITIONS.get(id));
+    public void modify(Context cx, ResourceLocation id, Consumer<BedrockOreDefinitionBuilderJS> consumer) {
+        var vein = registry.get(id);
+        if (vein == null) throw new IllegalArgumentException("Bedrock ore vein doesn't exist: " + id);
+        var builder = BedrockOreDefinitionBuilderJS.from(vein, id);
+        consumer.accept(builder);
+        register(id, builder.createObject());
+    }
+
+    public void modifyAll(Context cx, BiConsumer<ResourceLocation, BedrockOreDefinitionBuilderJS> consumer) {
+        Set<ResourceLocation> keys = registry.keySet();
+        keys.forEach(id -> {
+            var vein = registry.get(id);
+            if (vein == null) throw new IllegalArgumentException("Bedrock ore vein doesn't exist: " + id);
+            var builder = BedrockOreDefinitionBuilderJS.from(vein, id);
+            consumer.accept(id, builder);
+            register(id, builder.createObject());
+        });
+    }
+
+    public void removeAll(Context cx) {
+        Set<ResourceLocation> keys = Set.copyOf(registry.keySet());
+        keys.forEach(key -> remove(cx, key));
+    }
+
+    public void removeAll(Context cx, BiPredicate<ResourceLocation, BedrockOreDefinition> predicate) {
+        Set<ResourceLocation> keys = Set.copyOf(registry.keySet());
+        keys.stream()
+                .filter(key -> predicate.test(key, registry.get(key)))
+                .forEach(key -> remove(cx, key));
+    }
+
+    public void remove(Context cx, ResourceLocation id) {
+        if (!registry.containsKey(id)) {
+            ConsoleJS.SERVER.error("", new RuntimeException("Trying to remove nonexistent bedrock ore vein " + id));
+            return;
+        }
+        // blank out the vein info because we can't remove from the registry
+        var holder = registry.getHolderOrThrow(createKey(id));
+        holder.value().biomeWeightModifier(BiomeWeightModifier.EMPTY);
+        holder.value().weight(0);
+    }
+
+    public static ResourceKey<BedrockOreDefinition> createKey(ResourceLocation id) {
+        return ResourceKey.create(GTRegistries.Keys.BEDROCK_ORE, id);
     }
 }

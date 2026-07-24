@@ -27,8 +27,9 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import com.gregtechceu.gtceu.integration.kjs.GTCEuServerEvents;
 import com.gregtechceu.gtceu.integration.kjs.events.GTBedrockOreVeinEventJS;
-import com.gregtechceu.gtceu.integration.kjs.events.GTFluidVeinEventJS;
+import com.gregtechceu.gtceu.integration.kjs.events.GTBedrockFluidVeinEventJS;
 import com.gregtechceu.gtceu.integration.kjs.events.GTOreVeinEventJS;
+import dev.latvian.mods.kubejs.util.UtilsJS;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -65,6 +66,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -365,9 +367,19 @@ public class MixinHelpers {
     }
 
     public static void postKJSVeinEvents(RegistryAccess.Frozen registries) {
-        if (GTCEu.Mods.isKubeJSLoaded()) {
-            KJSCallWrapper.postWorldgenEvents(registries);
+        if (!GTCEu.Mods.isKubeJSLoaded()) {
+            return;
         }
+        KJSCallWrapper.updateRegistryAccessContainer(registries);
+
+        KJSCallWrapper.postEventWithRegistry(KJSCallWrapper::postOreVeinEvent,
+                registries.registryOrThrow(GTRegistries.Keys.ORE_VEIN));
+
+        KJSCallWrapper.postEventWithRegistry(KJSCallWrapper::postBedrockFluidEvent,
+                registries.registryOrThrow(GTRegistries.Keys.BEDROCK_FLUID));
+
+        KJSCallWrapper.postEventWithRegistry(KJSCallWrapper::postBedrockOreEvent,
+                registries.registryOrThrow(GTRegistries.Keys.BEDROCK_ORE));
     }
 
     public static void addFluidTexture(Material material, FluidStorage.FluidEntry value) {
@@ -382,23 +394,33 @@ public class MixinHelpers {
 
     private static final class KJSCallWrapper {
 
-        private static <T> void postWorldgenEvents(RegistryAccess.Frozen registries) {
+        private static <T> void postEventWithRegistry(Consumer<WritableRegistry<T>> eventProvider,
+                                                      Registry<T> registry) {
+            if (registry instanceof MappedRegistry<T> writable) {
+                // unfreeze the registry, register to it, refreeze it.
+                writable.unfreeze();
+                eventProvider.accept(writable);
+                writable.freeze();
+            }
+        }
 
-            var ores = (MappedRegistry<GTOreDefinition>)registries.registryOrThrow(GTRegistries.Keys.ORE_VEIN);
-            var bedrockOres = (MappedRegistry<BedrockOreDefinition>)registries.registryOrThrow(GTRegistries.Keys.BEDROCK_ORE);
-            var bedrockFluids = (MappedRegistry<BedrockFluidDefinition>)registries.registryOrThrow(GTRegistries.Keys.BEDROCK_FLUID);
+        private static void postOreVeinEvent(WritableRegistry<GTOreDefinition> registry) {
+            GTCEuServerEvents.ORE_VEIN_MODIFICATION.post(new GTOreVeinEventJS(registry));
+        }
 
-            ores.unfreeze();
-            bedrockOres.unfreeze();
-            bedrockFluids.unfreeze();
+        private static void postBedrockFluidEvent(WritableRegistry<BedrockFluidDefinition> registry) {
+            GTCEuServerEvents.FLUID_VEIN_MODIFICATION.post(new GTBedrockFluidVeinEventJS(registry));
+        }
 
-            GTCEuServerEvents.ORE_VEIN_MODIFICATION.post(new GTOreVeinEventJS(ores, registries));
-            GTCEuServerEvents.BEDROCK_ORE_VEIN_MODIFICATION.post(new GTBedrockOreVeinEventJS(ores, registries));
-            GTCEuServerEvents.FLUID_VEIN_MODIFICATION.post(new GTFluidVeinEventJS(ores, registries));
+        private static void postBedrockOreEvent(WritableRegistry<BedrockOreDefinition> registry) {
+            GTCEuServerEvents.BEDROCK_ORE_VEIN_MODIFICATION.post(new GTBedrockOreVeinEventJS(registry));
+        }
 
-            ores.freeze();
-            bedrockOres.freeze();
-            bedrockFluids.freeze();
+        private static void updateRegistryAccessContainer(RegistryAccess.Frozen registriesWithEverything) {
+            if (UtilsJS.staticRegistryAccess.registries().count() <
+                    registriesWithEverything.registries().count()) {
+                UtilsJS.staticRegistryAccess = registriesWithEverything;
+            }
         }
     }
 }
