@@ -28,18 +28,17 @@ import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.client.model.machine.MachineRenderState;
 import com.gregtechceu.gtceu.common.data.*;
-import com.gregtechceu.gtceu.common.data.GTFeatures;
 import com.gregtechceu.gtceu.common.data.loot.*;
 import com.gregtechceu.gtceu.common.data.machines.GTMachineUtils;
 import com.gregtechceu.gtceu.common.data.materials.AlloyBlastPropertyAddition;
 import com.gregtechceu.gtceu.common.data.materials.GTFoods;
 import com.gregtechceu.gtceu.common.data.worldgen.*;
+import com.gregtechceu.gtceu.common.data.worldgen.GTFeatures;
 import com.gregtechceu.gtceu.common.item.tool.rotation.CustomBlockRotations;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 import com.gregtechceu.gtceu.common.mui.GTGuiTheme;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
-import com.gregtechceu.gtceu.common.worldgen.modifier.GTPlacementModifiers;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.core.mixins.registrate.AbstractRegistrateAccessor;
 import com.gregtechceu.gtceu.data.GregTechDatagen;
@@ -175,7 +174,6 @@ public class CommonProxy {
         KeyBind.init();
         SyncedKeyMappings.init();
         MachineOwner.init();
-        GTLootItemFunctions.init(modBus);
 
         // MUI stuff
         GuiManager.registerFactory(MachineUIFactory.INSTANCE);
