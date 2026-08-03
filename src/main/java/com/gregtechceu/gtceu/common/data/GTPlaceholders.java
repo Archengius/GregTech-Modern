@@ -64,6 +64,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static com.gregtechceu.gtceu.common.registry.GTRegistration.REGISTRATE;
+
 public class GTPlaceholders {
 
     public static int countItems(String id, @Nullable IItemHandler itemHandler) {
@@ -102,7 +104,8 @@ public class GTPlaceholders {
 
     public static void init() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> GTPlaceholders::initRenderers);
-        PlaceholderHandler.addPlaceholder(new Placeholder("energy") {
+
+        REGISTRATE.generic("energy", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("energy") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -121,7 +124,8 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("energyCapacity") {
+
+        REGISTRATE.generic("energyCapacity", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("energyCapacity") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -139,7 +143,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("calc") {
+        REGISTRATE.generic("calc", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("calc") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -156,7 +160,8 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("itemCount") {
+
+        REGISTRATE.generic("itemCount", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("itemCount") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -186,7 +191,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("fluidCount") {
+        REGISTRATE.generic("fluidCount", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("fluidCount") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -206,7 +211,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("if") {
+        REGISTRATE.generic("if", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("if") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -230,7 +235,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("color") {
+        REGISTRATE.generic("color", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("color") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -241,7 +246,7 @@ public class GTPlaceholders {
                 return new MultiLineComponent(args.get(1).stream().map(c -> c.withStyle(color)).toList());
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("underline") {
+        REGISTRATE.generic("underline", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("underline") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -251,7 +256,7 @@ public class GTPlaceholders {
                         args.get(0).stream().map(c -> c.withStyle(ChatFormatting.UNDERLINE)).toList());
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("strike") {
+        REGISTRATE.generic("strike", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("strike") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -261,7 +266,7 @@ public class GTPlaceholders {
                         args.get(0).stream().map(c -> c.withStyle(ChatFormatting.STRIKETHROUGH)).toList());
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("obf") {
+        REGISTRATE.generic("obf", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("obf") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -271,7 +276,7 @@ public class GTPlaceholders {
                         args.get(0).stream().map(c -> c.withStyle(ChatFormatting.OBFUSCATED)).toList());
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("random") {
+        REGISTRATE.generic("random", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("random") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -281,7 +286,7 @@ public class GTPlaceholders {
                         PlaceholderUtils.toInt(args.get(0)), PlaceholderUtils.toInt(args.get(1))));
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("repeat") {
+        REGISTRATE.generic("repeat", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("repeat") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -304,7 +309,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("block") {
+        REGISTRATE.generic("block", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("block") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -318,7 +323,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("tick") {
+        REGISTRATE.generic("tick", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("tick") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -332,7 +337,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("select") {
+        REGISTRATE.generic("select", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("select") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -350,7 +355,7 @@ public class GTPlaceholders {
         });
 
         if (!ConfigHolder.INSTANCE.compat.createCompat || !GTCEu.Mods.isCreateLoaded()) {
-            PlaceholderHandler.addPlaceholder(new Placeholder("redstone") {
+            REGISTRATE.generic("redstone", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("redstone") {
 
                 @Override
                 public MultiLineComponent apply(PlaceholderContext ctx,
@@ -373,7 +378,7 @@ public class GTPlaceholders {
                 }
             });
         }
-        PlaceholderHandler.addPlaceholder(new Placeholder("previousText") {
+        REGISTRATE.generic("previousText", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("previousText") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -390,7 +395,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("progress") {
+        REGISTRATE.generic("progress", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("progress") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -408,7 +413,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("maxProgress") {
+        REGISTRATE.generic("maxProgress", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("maxProgress") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -426,7 +431,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("maintenance") {
+        REGISTRATE.generic("maintenance", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("maintenance") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -444,7 +449,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("active") {
+        REGISTRATE.generic("active", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("active") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -462,7 +467,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("voltage") {
+        REGISTRATE.generic("voltage", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("voltage") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -480,7 +485,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("amperage") {
+        REGISTRATE.generic("amperage", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("amperage") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -498,7 +503,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("count") {
+        REGISTRATE.generic("count", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("count") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -517,7 +522,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("data") {
+        REGISTRATE.generic("data", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("data") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -579,7 +584,7 @@ public class GTPlaceholders {
                 }
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("combine") {
+        REGISTRATE.generic("combine", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("combine") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx, List<MultiLineComponent> args) {
@@ -596,7 +601,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("nbt") {
+        REGISTRATE.generic("nbt", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("nbt") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -618,7 +623,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("toChars") {
+        REGISTRATE.generic("toChars", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("toChars") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -635,7 +640,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("toAscii") {
+        REGISTRATE.generic("toAscii", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("toAscii") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -651,7 +656,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("fromAscii") {
+        REGISTRATE.generic("fromAscii", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("fromAscii") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -665,7 +670,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("subList") {
+        REGISTRATE.generic("subList", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("subList") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -687,7 +692,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("cmp") {
+        REGISTRATE.generic("cmp", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("cmp") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -711,7 +716,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("bf") {
+        REGISTRATE.generic("bf", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("bf") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -808,7 +813,7 @@ public class GTPlaceholders {
                 return MultiLineComponent.empty();
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("cmd") {
+        REGISTRATE.generic("cmd", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("cmd") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -870,7 +875,7 @@ public class GTPlaceholders {
                 } else throw new NotSupportedException();
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("tm") {
+        REGISTRATE.generic("tm", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("tm") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx, List<MultiLineComponent> args) {
@@ -882,7 +887,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("formatInt") {
+        REGISTRATE.generic("formatInt", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("formatInt") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -908,7 +913,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("click") {
+        REGISTRATE.generic("click", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("click") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -929,7 +934,7 @@ public class GTPlaceholders {
                 return true;
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("ender") {
+        REGISTRATE.generic("ender", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("ender") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1002,7 +1007,7 @@ public class GTPlaceholders {
                 }
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("eval") {
+        REGISTRATE.generic("eval", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("eval") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1015,7 +1020,7 @@ public class GTPlaceholders {
                 return PlaceholderHandler.processPlaceholders(out.toString(), ctx);
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("module") {
+        REGISTRATE.generic("module", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("module") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1038,7 +1043,7 @@ public class GTPlaceholders {
                         stack.serializeNBT()));
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("setImage") {
+        REGISTRATE.generic("setImage", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("setImage") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1059,7 +1064,7 @@ public class GTPlaceholders {
                 return MultiLineComponent.empty();
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("rect") {
+        REGISTRATE.generic("rect", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("rect") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1083,7 +1088,7 @@ public class GTPlaceholders {
                         renderData));
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("quad") {
+        REGISTRATE.generic("quad", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("quad") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1117,7 +1122,7 @@ public class GTPlaceholders {
                         renderData));
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("item") {
+        REGISTRATE.generic("item", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("item") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1129,7 +1134,7 @@ public class GTPlaceholders {
                 return MultiLineComponent.literal(ctx.itemStackHandler().getStackInSlot(slot - 1).toString());
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("blockNbt") {
+        REGISTRATE.generic("blockNbt", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("blockNbt") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1153,7 +1158,7 @@ public class GTPlaceholders {
                 return tag == null ? MultiLineComponent.empty() : MultiLineComponent.literal(tag.toString());
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("setTargetSlot") {
+        REGISTRATE.generic("setTargetSlot", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("setTargetSlot") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1172,7 +1177,7 @@ public class GTPlaceholders {
                 return MultiLineComponent.empty();
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("targetSlot") {
+        REGISTRATE.generic("targetSlot", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("targetSlot") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -1193,8 +1198,6 @@ public class GTPlaceholders {
         if (ConfigHolder.INSTANCE.compat.createCompat && GTCEu.Mods.isCreateLoaded()) {
             GTCreateIntegration.initPlaceholders();
         }
-
-        ModLoader.get().postEvent(new GTCEuAPI.RegisterEvent<>(GTRegistries.PLACEHOLDERS, Placeholder.class));
     }
 
     @OnlyIn(Dist.CLIENT)

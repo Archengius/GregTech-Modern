@@ -2,7 +2,9 @@ package com.gregtechceu.gtceu.integration.create;
 
 import com.gregtechceu.gtceu.api.placeholder.*;
 import com.gregtechceu.gtceu.api.placeholder.exceptions.*;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
+import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.utils.GTStringUtils;
 
 import net.createmod.catnip.data.Couple;
@@ -36,7 +38,7 @@ public class GTCreateIntegration {
     }
 
     public static void initPlaceholders() {
-        PlaceholderHandler.addPlaceholder(new Placeholder("redstone") {
+        GTRegistration.REGISTRATE.generic("redstone", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("redstone") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
@@ -44,7 +46,7 @@ public class GTCreateIntegration {
                 return processRedstonePlaceholder(ctx, args);
             }
         });
-        PlaceholderHandler.addPlaceholder(new Placeholder("displayTarget") {
+        GTRegistration.REGISTRATE.generic("displayTarget", GTRegistries.Keys.PLACEHOLDER, () -> new Placeholder("displayTarget") {
 
             @Override
             public MultiLineComponent apply(PlaceholderContext ctx,
