@@ -1,9 +1,8 @@
-package com.gregtechceu.gtceu.api.registry.registrate.forge;
+package com.gregtechceu.gtceu.api.registry.registrate;
 
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.fluids.FluidState;
 import com.gregtechceu.gtceu.api.fluids.GTFluid;
-import com.gregtechceu.gtceu.api.registry.registrate.IGTFluidBuilder;
 import com.gregtechceu.gtceu.common.item.GTBucketItem;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
@@ -59,8 +58,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Accessors(chain = true, fluent = true)
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class GTFluidBuilder<P> extends AbstractBuilder<Fluid, GTFluid.Flowing, P, GTFluidBuilder<P>>
-                           implements IGTFluidBuilder {
+public class GTFluidBuilder<P> extends AbstractBuilder<Fluid, GTFluid.Flowing, P, GTFluidBuilder<P>> {
 
     @Setter
     public int temperature = 300;
@@ -289,7 +287,6 @@ public class GTFluidBuilder<P> extends AbstractBuilder<Fluid, GTFluid.Flowing, P
                 (() -> this.bucket != null ? this.bucket.get() : null), this.burnTime, this.fluidType);
     }
 
-    @Override
     public GTFluidBuilder<P> hasBlock(boolean hasBlock) {
         if (hasBlock && defaultBlock == null) {
             defaultBlock();
@@ -300,8 +297,7 @@ public class GTFluidBuilder<P> extends AbstractBuilder<Fluid, GTFluid.Flowing, P
         return this;
     }
 
-    @Override
-    public IGTFluidBuilder hasBucket(boolean hasBucket) {
+    public GTFluidBuilder<P> hasBucket(boolean hasBucket) {
         if (hasBucket && defaultBucket == null) {
             defaultBucket();
         }
@@ -311,8 +307,7 @@ public class GTFluidBuilder<P> extends AbstractBuilder<Fluid, GTFluid.Flowing, P
         return this;
     }
 
-    @Override
-    public IGTFluidBuilder onFluidRegister(Consumer<Fluid> fluidConsumer) {
+    public GTFluidBuilder<P> onFluidRegister(Consumer<Fluid> fluidConsumer) {
         return onRegister(fluidConsumer::accept);
     }
 
@@ -351,7 +346,6 @@ public class GTFluidBuilder<P> extends AbstractBuilder<Fluid, GTFluid.Flowing, P
         return super.register();
     }
 
-    @Override
     public Supplier<? extends Fluid> registerFluid() {
         register();
         return this.source;

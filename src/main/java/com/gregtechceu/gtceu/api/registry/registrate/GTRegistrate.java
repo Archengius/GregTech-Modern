@@ -9,7 +9,6 @@ import com.gregtechceu.gtceu.api.machine.MachineInstanceFactory;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
-import com.gregtechceu.gtceu.api.registry.registrate.forge.GTFluidBuilder;
 import com.gregtechceu.gtceu.core.mixins.registrate.AbstractRegistrateAccessor;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -175,8 +174,8 @@ public class GTRegistrate extends AbstractRegistrate<GTRegistrate> {
         });
     }
 
-    public IGTFluidBuilder createFluid(String name, String langKey, Material material, ResourceLocation stillTexture,
-                                       ResourceLocation flowingTexture) {
+    public GTFluidBuilder<GTRegistrate> createFluid(String name, String langKey, Material material, ResourceLocation stillTexture,
+                                                    ResourceLocation flowingTexture) {
         return entry(name,
                 callback -> new GTFluidBuilder<>(this, this, material, name, langKey, callback, stillTexture,
                         flowingTexture, GTFluidBuilder::defaultFluidType).defaultLang().defaultSource()

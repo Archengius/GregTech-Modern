@@ -7,8 +7,8 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.fluids.attribute.FluidAttribute;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKey;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
+import com.gregtechceu.gtceu.api.registry.registrate.GTFluidBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
-import com.gregtechceu.gtceu.api.registry.registrate.IGTFluidBuilder;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
 import net.minecraft.resources.ResourceLocation;
@@ -263,7 +263,7 @@ public class FluidBuilder {
         determineDensity();
         determineLuminosity(material);
         determineViscosity(material);
-        IGTFluidBuilder builder = registrate
+        GTFluidBuilder<GTRegistrate> builder = registrate
                 .createFluid(name, this.translation != null ? this.translation : key.getTranslationKeyFor(material),
                         material, this.still, this.flowing)
                 .temperature(this.temperature)
