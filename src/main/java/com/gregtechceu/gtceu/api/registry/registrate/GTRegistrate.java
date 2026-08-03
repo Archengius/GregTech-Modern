@@ -9,6 +9,8 @@ import com.gregtechceu.gtceu.api.machine.MachineInstanceFactory;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
+import com.gregtechceu.gtceu.api.registry.registrate.holder.HolderRegistryEntry;
+import com.gregtechceu.gtceu.api.registry.registrate.holder.NoConfigHolderBuilder;
 import com.gregtechceu.gtceu.core.mixins.registrate.AbstractRegistrateAccessor;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -180,6 +182,50 @@ public class GTRegistrate extends AbstractRegistrate<GTRegistrate> {
                 callback -> new GTFluidBuilder<>(this, this, material, name, langKey, callback, stillTexture,
                         flowingTexture, GTFluidBuilder::defaultFluidType).defaultLang().defaultSource()
                         .setData(ProviderType.LANG, NonNullBiConsumer.noop()));
+    }
+
+    // spotless:off
+    /* === Builder helpers === */
+
+    // Generic
+    @Override
+    public <R, T extends R> HolderRegistryEntry<T> simple(ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return simple(currentName(), registryType, factory);
+    }
+
+    @Override
+    public <R, T extends R> HolderRegistryEntry<T> simple(String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return simple(this, name, registryType, factory);
+    }
+
+    @Override
+    public <R, T extends R, P> HolderRegistryEntry<T> simple(P parent, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return simple(parent, currentName(), registryType, factory);
+    }
+
+    @Override
+    public <R, T extends R, P> HolderRegistryEntry<T> simple(P parent, String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return generic(parent, name, registryType, factory).register();
+    }
+
+    @Override
+    public <R, T extends R> NoConfigHolderBuilder<R, T, GTRegistrate> generic(ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return generic(self(), registryType, factory);
+    }
+
+    @Override
+    public <R, T extends R> NoConfigHolderBuilder<R, T, GTRegistrate> generic(String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return generic(self(), name, registryType, factory);
+    }
+
+    @Override
+    public <R, T extends R, P> NoConfigHolderBuilder<R, T, P> generic(P parent, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return generic(parent, currentName(), registryType, factory);
+    }
+
+    @Override
+    public <R, T extends R, P> NoConfigHolderBuilder<R, T, P> generic(P parent, String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+        return (NoConfigHolderBuilder<R, T, P>) entry(name, callback -> new NoConfigHolderBuilder<>(this, parent, name, callback, registryType, factory));
     }
 
     public <DEFINITION extends MachineDefinition,
