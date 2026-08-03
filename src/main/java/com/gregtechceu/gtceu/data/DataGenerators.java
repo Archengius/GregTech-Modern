@@ -1,12 +1,9 @@
 package com.gregtechceu.gtceu.data;
 
 import com.gregtechceu.gtceu.GTCEu;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.SoundEntryBuilder;
-import com.gregtechceu.gtceu.common.data.GTBiomeModifiers;
-import com.gregtechceu.gtceu.common.data.GTConfiguredFeatures;
-import com.gregtechceu.gtceu.common.data.GTDamageTypes;
-import com.gregtechceu.gtceu.common.data.GTPlacements;
-import com.gregtechceu.gtceu.common.data.GTWorldgen;
+import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.data.tags.BiomeTagsLoader;
 import com.gregtechceu.gtceu.data.tags.DamageTagsLoader;
 
@@ -44,7 +41,9 @@ public class DataGenerators {
                             .add(Registries.CONFIGURED_FEATURE, GTConfiguredFeatures::bootstrap)
                             .add(Registries.PLACED_FEATURE, GTPlacements::bootstrap)
                             .add(Registries.DENSITY_FUNCTION, GTWorldgen::bootstrapDensityFunctions)
-                            .add(ForgeRegistries.Keys.BIOME_MODIFIERS, GTBiomeModifiers::bootstrap),
+                            .add(ForgeRegistries.Keys.BIOME_MODIFIERS, GTBiomeModifiers::bootstrap)
+                            .add(GTRegistries.Keys.BEDROCK_FLUID, GTBedrockFluids::bootstrap)
+                            .add(GTRegistries.Keys.ORE_VEIN, GTOreVeins::bootstrap),
                     set));
             generator.addProvider(true,
                     new DamageTagsLoader(packOutput, provider.getRegistryProvider(), existingFileHelper));

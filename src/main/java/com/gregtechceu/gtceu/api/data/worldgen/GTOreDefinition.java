@@ -5,10 +5,8 @@ import com.gregtechceu.gtceu.api.data.worldgen.generator.IndicatorGenerator;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.VeinGenerator;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.indicators.SurfaceIndicatorGenerator;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.veins.*;
-import com.gregtechceu.gtceu.api.data.worldgen.ores.OreVeinUtil;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -28,8 +26,6 @@ import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.rhino.util.HideFromJS;
-import dev.latvian.mods.rhino.util.RemapForJS;
-import dev.latvian.mods.rhino.util.RemapPrefixForJS;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,23 +36,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@SuppressWarnings("unused")
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@RemapPrefixForJS("kjs$")
+@SuppressWarnings("UnusedReturnValue")
 @Accessors(chain = true, fluent = true)
 public class GTOreDefinition {
 
-
     // spotless:off
-
     public static final Codec<GTOreDefinition> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             IntProvider.NON_NEGATIVE_CODEC.fieldOf("cluster_size").forGetter(GTOreDefinition::clusterSize),
             Codec.floatRange(0.0F, 1.0F).fieldOf("density").forGetter(ft -> ft.density),
@@ -94,14 +80,14 @@ public class GTOreDefinition {
     @Setter
     private float discardChanceOnAirExposure;
     @Getter
-    private @Nullable HolderSet<Biome> biomes;
+    private HolderSet<Biome> biomes;
     @Getter
     @Setter
     private BiomeWeightModifier biomeWeightModifier;
 
     @Getter
     @Setter
-    private @Nullable VeinGenerator veinGenerator;
+    private VeinGenerator veinGenerator;
 
     @Getter
     @Setter
@@ -111,6 +97,13 @@ public class GTOreDefinition {
     @Nullable
     @Setter
     private HolderGetter<Biome> biomeLookup;
+
+    public GTOreDefinition(GTOreDefinition other) {
+        this(other.clusterSize, other.density, other.weight, other.layer,
+                Set.copyOf(other.dimensionFilter), other.heightRange, other.discardChanceOnAirExposure,
+                other.biomes, other.biomeWeightModifier, other.veinGenerator, List.copyOf(other.indicatorGenerators),
+                other.biomeLookup);
+    }
 
     public GTOreDefinition(IntProvider clusterSize, float density, int weight, IWorldGenLayer layer,
                            List<ResourceKey<Level>> dimensionFilter, HeightRangePlacement heightRange,
@@ -175,44 +168,13 @@ public class GTOreDefinition {
     public GTOreDefinition layer(IWorldGenLayer layer) {
         this.layer = layer;
         if (this.dimensionFilter == null || this.dimensionFilter.isEmpty()) {
-            dimensions(layer.getLevels().stream()
-                    .map(location -> ResourceKey.create(Registries.DIMENSION, location))
-                    .collect(Collectors.toSet()));
+            dimensions(layer.getLevels());
         }
         return this;
     }
 
-    @HideFromJS
-    public final GTOreDefinition dimensions(Set<ResourceKey<Level>> dimensions) {
+    public GTOreDefinition dimensions(Set<ResourceKey<Level>> dimensions) {
         this.dimensionFilter = dimensions;
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link #dimensions(Set) dimensions(Set&lt;ResourceKey&lt;Level&gt;&gt;)} instead.
-     * @param dimensions
-     * @return this builder.
-     */
-    @ApiStatus.ScheduledForRemoval(inVersion = "8.0.0")
-    @Deprecated(since = "7.4.1", forRemoval = true)
-    @ApiStatus.Internal
-    @SuppressWarnings("unused")
-    // TODO(8.0.0): rename to `kjs$dimensions`
-    public GTOreDefinition dimensions(ResourceLocation... dimensions) {
-        return this.dimensions(Arrays.stream(dimensions)
-                .map(location -> ResourceKey.create(Registries.DIMENSION, location))
-                .collect(Collectors.toSet()));
-    }
-
-    /// This method should <b>only</b> be used in KubeJS.
-    @SuppressWarnings("unused")
-    @ApiStatus.Internal
-    public GTOreDefinition kjs$biomes(String first, String... biomes) {
-        // The first param is separate to avoid method confusion with the Lombok-generated fluent getter
-        List<String> biomeList = Stream.concat(Stream.of(first), Arrays.stream(biomes))
-                .toList();
-
-        this.biomes = OreVeinUtil.resolveBiomes(biomeList);
         return this;
     }
 
@@ -319,7 +281,6 @@ public class GTOreDefinition {
     }
 
     @Tolerate
-    @RemapForJS("customVeinGenerator")
     public @Nullable VeinGenerator veinGenerator(ResourceLocation id) {
         if (veinGenerator == null) {
             veinGenerator = WorldGeneratorUtils.VEIN_GENERATOR_FUNCTIONS.containsKey(id) ?
@@ -333,9 +294,10 @@ public class GTOreDefinition {
         return this;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private <T extends IndicatorGenerator> T getOrCreateIndicatorGenerator(Class<T> indicatorClass,
                                                                            Supplier<T> constructor) {
-        T existingGenerator = indicatorGenerators.stream()
+        var existingGenerator = indicatorGenerators.stream()
                 .filter(indicatorClass::isInstance)
                 .map(indicatorClass::cast)
                 .findFirst().orElse(null);
