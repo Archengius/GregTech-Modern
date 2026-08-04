@@ -97,7 +97,7 @@ public class CokeOvenHatch extends MultiblockPartMachine {
     //////////////////////////////////////
 
     @Override
-    public void onNeighborChanged(net.minecraft.world.level.block.Block block, BlockPos fromPos, boolean isMoving) {
+    public void onNeighborChanged(Block block, BlockPos fromPos, boolean isMoving) {
         super.onNeighborChanged(block, fromPos, isMoving);
         updateAutoIOSubscription();
     }
