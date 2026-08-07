@@ -156,6 +156,7 @@ public class ChemicalHelper {
     }
 
     public static ItemStack getIngotOrDust(MaterialStack materialStack) {
+        if (materialStack.material() == null) return ItemStack.EMPTY;
         return getIngotOrDust(materialStack.material(), materialStack.amount());
     }
 
@@ -252,12 +253,12 @@ public class ChemicalHelper {
         return stack;
     }
 
-    public static ItemStack get(TagPrefix orePrefix, Material material, int stackSize) {
-        return get(new MaterialEntry(orePrefix, material), stackSize);
+    public static ItemStack get(TagPrefix tagPrefix, Material material, int stackSize) {
+        return get(new MaterialEntry(tagPrefix, material), stackSize);
     }
 
-    public static ItemStack get(TagPrefix orePrefix, Material material) {
-        return get(orePrefix, material, 1);
+    public static ItemStack get(TagPrefix tagPrefix, Material material) {
+        return get(tagPrefix, material, 1);
     }
 
     public static List<Block> getBlocks(MaterialEntry materialEntry) {
@@ -287,13 +288,13 @@ public class ChemicalHelper {
     }
 
     @Nullable
-    public static Block getBlock(TagPrefix orePrefix, Material material) {
-        return getBlock(new MaterialEntry(orePrefix, material));
+    public static Block getBlock(TagPrefix tagPrefix, Material material) {
+        return getBlock(new MaterialEntry(tagPrefix, material));
     }
 
     @Nullable
-    public static TagKey<Block> getBlockTag(TagPrefix orePrefix, Material material) {
-        var tags = orePrefix.getBlockTags(material);
+    public static TagKey<Block> getBlockTag(TagPrefix tagPrefix, Material material) {
+        var tags = tagPrefix.getBlockTags(material);
         if (tags.isEmpty()) {
             return null;
         }
@@ -301,8 +302,8 @@ public class ChemicalHelper {
     }
 
     @Nullable
-    public static TagKey<Item> getTag(TagPrefix orePrefix, Material material) {
-        var tags = orePrefix.getItemTags(material);
+    public static TagKey<Item> getTag(TagPrefix tagPrefix, Material material) {
+        var tags = tagPrefix.getItemTags(material);
         if (tags.isEmpty()) {
             return null;
         }
