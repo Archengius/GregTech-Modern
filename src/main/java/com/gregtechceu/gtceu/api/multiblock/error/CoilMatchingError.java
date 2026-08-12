@@ -38,7 +38,7 @@ public class CoilMatchingError extends PatternError {
         return (parent) -> {
             Objects.requireNonNull(pos);
             Component comp = Component.translatable("gtceu.pattern_error.mismatch_coils",
-                     coilType1.getName(), coilType2.getName(),
+                    coilType1.getName(), coilType2.getName(),
                     pos.getX(), pos.getY(), pos.getZ());
             parent.child(Text.of(comp).asWidget());
         };
