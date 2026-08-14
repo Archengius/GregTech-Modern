@@ -33,11 +33,11 @@ public class GridNodeHolder extends MachineTrait {
         return (SerializableManagedGridNode) new SerializableManagedGridNode(machine,
                 BlockEntityNodeListener.INSTANCE)
                 .setFlags(GridFlags.REQUIRE_CHANNEL)
-                .setVisualRepresentation(machine.self().getDefinition().getItem())
+                .setVisualRepresentation(machine.getDefinition().getItem())
                 .setIdlePowerUsage(ConfigHolder.INSTANCE.compat.ae2.meHatchEnergyUsage)
                 .setInWorldNode(true)
                 .setExposedOnSides(
-                        machine.self().hasFrontFacing() ? EnumSet.of(machine.self().getFrontFacing()) :
+                        machine.hasFrontFacing() ? EnumSet.of(machine.getFrontFacing()) :
                                 EnumSet.allOf(Direction.class))
                 .setTagName("proxy");
     }

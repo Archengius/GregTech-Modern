@@ -10,7 +10,7 @@ public interface ITieredMachine extends IMachineFeature {
      * @return tier of this machine
      */
     default int getTier() {
-        return self().getDefinition().getTier();
+        return getDefinition().getTier();
     }
 
     default long getMaxVoltage() {

@@ -1,5 +1,6 @@
 package com.gregtechceu.gtceu.api.machine.feature;
 
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.mui.MachineUIPanelBuilder;
 import com.gregtechceu.gtceu.api.mui.GTGuiScreen;
 import com.gregtechceu.gtceu.api.mui.factory.MachineUIFactory;
@@ -30,7 +31,7 @@ public interface IMuiMachine extends IUIHolder<PosGuiData>, IMachineFeature {
     }
 
     default MachineUIPanelBuilder getPanelBuilder(PosGuiData data, PanelSyncManager syncManager, UISettings settings) {
-        return MachineUIPanelBuilder.panelBuilder(self());
+        return MachineUIPanelBuilder.panelBuilder((MetaMachine)this);
     }
 
     default void buildMainUI(ParentWidget<?> mainWidget, PosGuiData guiData, PanelSyncManager syncManager,

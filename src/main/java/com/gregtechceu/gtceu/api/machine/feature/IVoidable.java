@@ -16,11 +16,11 @@ public interface IVoidable extends IMachineFeature {
 
     default boolean canVoidRecipeOutputs(RecipeCapability<?> capability) {
         return getVoidingMode().canVoid(capability) ||
-                self().getDefinition().getRecipeOutputLimits().getOrDefault(capability, -1) == 0;
+                getDefinition().getRecipeOutputLimits().getOrDefault(capability, -1) == 0;
     }
 
     default Reference2IntMap<RecipeCapability<?>> getOutputLimits() {
-        return self().getDefinition().getRecipeOutputLimits();
+        return getDefinition().getRecipeOutputLimits();
     }
 
     default void setVoidingMode(VoidingMode mode) {}

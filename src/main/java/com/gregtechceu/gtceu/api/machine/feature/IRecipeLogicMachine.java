@@ -2,6 +2,7 @@ package com.gregtechceu.gtceu.api.machine.feature;
 
 import com.gregtechceu.gtceu.api.capability.IWorkable;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeCapabilityHolder;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.trait.feature.IRecipeLogicModifierTrait;
 import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
@@ -53,10 +54,10 @@ public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFe
      */
     @Nullable
     default GTRecipe doModifyRecipe(GTRecipe recipe) {
-        recipe = self().getDefinition().getRecipeModifier().applyModifier(self(), recipe);
+        recipe = getDefinition().getRecipeModifier().applyModifier((MetaMachine)this, recipe);
         if (recipe == null) return null;
 
-        for (var rlTrait : self().getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
+        for (var rlTrait : getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
             recipe = rlTrait.modifyRecipe(recipe);
             if (recipe == null) return null;
         }
@@ -77,7 +78,7 @@ public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFe
      * @param newStatus New recipe logic status
      */
     default void recipeLogicStatusChanged(RecipeLogic.Status oldStatus, RecipeLogic.Status newStatus) {
-        for (var rlTrait : self().getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
+        for (var rlTrait : getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
             rlTrait.recipeLogicStatusChanged(oldStatus, newStatus);
         }
     }
@@ -90,9 +91,9 @@ public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFe
      * @see RecipeLogic#setupRecipe(GTRecipe)
      */
     default boolean beforeWorking(@Nullable GTRecipe recipe) {
-        if (!self().getDefinition().getBeforeWorking().test(this, recipe)) return false;
+        if (!getDefinition().getBeforeWorking().test(this, recipe)) return false;
 
-        for (var rlTrait : self().getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
+        for (var rlTrait : getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
             if (!rlTrait.beforeWorking(recipe)) return false;
         }
         return true;
@@ -106,9 +107,9 @@ public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFe
      * @see RecipeLogic#handleRecipeWorking()
      */
     default boolean onWorking() {
-        if (!self().getDefinition().getOnWorking().test(this)) return false;
+        if (!getDefinition().getOnWorking().test(this)) return false;
 
-        for (var rlTrait : self().getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
+        for (var rlTrait : getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
             if (!rlTrait.onWorking()) return false;
         }
         return true;
@@ -118,7 +119,7 @@ public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFe
      * Called per tick in {@link RecipeLogic#handleRecipeWorking()}
      */
     default void onWaiting() {
-        self().getDefinition().getOnWaiting().accept(this);
+        getDefinition().getOnWaiting().accept(this);
     }
 
     /**
@@ -127,15 +128,15 @@ public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFe
      * @see RecipeLogic#onRecipeFinish()
      */
     default void afterWorking() {
-        self().getDefinition().getAfterWorking().accept(this);
-        for (var rlTrait : self().getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
+        getDefinition().getAfterWorking().accept(this);
+        for (var rlTrait : getTraitHolder().getTraitsByInterface(IRecipeLogicModifierTrait.class)) {
             rlTrait.afterWorking();
         }
     }
 
     default boolean shouldWorkingPlaySound() {
         return ConfigHolder.INSTANCE.machines.machineSounds &&
-                (!(self() instanceof IMufflableMachine mufflableMachine) || !mufflableMachine.isMuffled());
+                (!(this instanceof IMufflableMachine mufflableMachine) || !mufflableMachine.isMuffled());
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.gregtechceu.gtceu.integration.ae2.machine.feature.multiblock;
 
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IMuiMachine;
 import com.gregtechceu.gtceu.api.machine.mui.MachineUIPanelBuilder;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
@@ -96,7 +97,7 @@ public interface IMEStockingPart extends IAutoPullPart, IMuiMachine {
                                         .setNumbers(1, 200))
                                 .margin(5)));
 
-        return MachineUIPanelBuilder.panelBuilder(this.self())
+        return MachineUIPanelBuilder.panelBuilder((MetaMachine)this)
                 .rightConfigurators(f -> {
                     f.child(new ToggleButton()
                             .value(new BooleanSyncValue(this::isAutoPull, this::setAutoPull).allowC2S())
