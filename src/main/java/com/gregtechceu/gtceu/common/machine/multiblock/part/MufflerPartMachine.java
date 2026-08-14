@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.sync_system.annotations.SaveField;
 import com.gregtechceu.gtceu.api.transfer.item.CustomItemStackHandler;
@@ -84,8 +85,8 @@ public class MufflerPartMachine extends TieredPartMachine implements IMuiMachine
     public void clientTick() {
         super.clientTick();
         for (MultiblockControllerMachine controller : getControllers()) {
-            if (controller instanceof IRecipeLogicMachine recipeLogicMachine &&
-                    recipeLogicMachine.getRecipeLogic().isWorking()) {
+            RecipeLogic rl = controller.getTrait(RecipeLogic.class);
+            if (rl != null && rl.isWorking()) {
                 emitPollutionParticles();
                 break;
             }
@@ -126,13 +127,10 @@ public class MufflerPartMachine extends TieredPartMachine implements IMuiMachine
 
     private void tryBreakSnow() {
         if (getOffsetTimer() % 10 == 0) {
-            for (MultiblockControllerMachine controller : getControllers()) {
-                if (controller instanceof IRecipeLogicMachine recipeLogicMachine &&
-                        recipeLogicMachine.getRecipeLogic().isWorking()) {
-                    BlockPos mufflerPos = getBlockPos().relative(getFrontFacing());
-                    GTUtil.tryBreakSnow(getLevel(), mufflerPos, getLevel().getBlockState(mufflerPos), true);
-                }
-            }
+            getControllers().forEach(c -> c.getTraitOptional(RecipeLogic.class).ifPresent(rl -> {
+                BlockPos mufflerPos = getBlockPos().relative(getFrontFacing());
+                GTUtil.tryBreakSnow(getLevel(), mufflerPos, getLevel().getBlockState(mufflerPos), true);
+            }));
         }
     }
 

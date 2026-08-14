@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.steam.SteamEnergyRecipeHandler;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.multiblock.error.PatternError;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
@@ -189,17 +190,19 @@ public class GTMultiblockTextUtil {
     }
 
     public static TextWidget<?> addProgressLine(WorkableMultiblockMachine rlMachine, PanelSyncManager syncManager) {
+        RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+
         BooleanSyncValue isFormed = syncManager.getOrCreateSyncHandler("isFormed", BooleanSyncValue.class,
                 () -> new BooleanSyncValue(rlMachine::isFormed));
 
         BooleanSyncValue isActive = syncManager.getOrCreateSyncHandler("isActive", BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isActive()));
+                () -> new BooleanSyncValue(recipeLogic::isActive));
         IntSyncValue currentProgress = syncManager.getOrCreateSyncHandler("currentProgress", IntSyncValue.class,
-                () -> new IntSyncValue(() -> rlMachine.getRecipeLogic().getProgress()));
+                () -> new IntSyncValue(recipeLogic::getProgress));
         IntSyncValue maxProgress = syncManager.getOrCreateSyncHandler("maxProgress", IntSyncValue.class,
-                () -> new IntSyncValue(() -> rlMachine.getRecipeLogic().getMaxProgress()));
+                () -> new IntSyncValue(recipeLogic::getMaxProgress));
         DoubleSyncValue progressPercent = syncManager.getOrCreateSyncHandler("progressPercent", DoubleSyncValue.class,
-                () -> new DoubleSyncValue(() -> rlMachine.getRecipeLogic().getProgressPercent()));
+                () -> new DoubleSyncValue(recipeLogic::getProgressPercent));
 
         return Text.dynamic(() -> {
             int progress = (int) (progressPercent.getDoubleValue() * 100.f);
@@ -215,12 +218,14 @@ public class GTMultiblockTextUtil {
 
     public static TextWidget<?> addProgressLinePercentOnly(WorkableMultiblockMachine rlMachine,
                                                            PanelSyncManager syncManager) {
+        RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+
         BooleanSyncValue isFormed = syncManager.getOrCreateSyncHandler("isFormed", BooleanSyncValue.class,
                 () -> new BooleanSyncValue(rlMachine::isFormed));
         BooleanSyncValue isActive = syncManager.getOrCreateSyncHandler("isActive", BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isActive()));
+                () -> new BooleanSyncValue(recipeLogic::isActive));
         DoubleSyncValue progressPercent = syncManager.getOrCreateSyncHandler("progressPercent", DoubleSyncValue.class,
-                () -> new DoubleSyncValue(() -> rlMachine.getRecipeLogic().getProgressPercent()));
+                () -> new DoubleSyncValue(recipeLogic::getProgressPercent));
 
         return Text.dynamic(() -> {
             int currentProgress = (int) (progressPercent.getDoubleValue() * 100);
@@ -254,8 +259,9 @@ public class GTMultiblockTextUtil {
     public static TextWidget<?> addParallelLine(WorkableMultiblockMachine rlMachine, PanelSyncManager syncManager) {
         IntSyncValue parallelAmount = syncManager.getOrCreateSyncHandler("parallelAmount", IntSyncValue.class,
                 () -> new IntSyncValue(() -> {
-                    if (rlMachine.getRecipeLogic().getLastUnrolledRecipe() == null) return 0;
-                    return rlMachine.getRecipeLogic().getLastUnrolledRecipe().parallels;
+                    RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+                    if (recipeLogic.getLastUnrolledRecipe() == null) return 0;
+                    return recipeLogic.getLastUnrolledRecipe().parallels;
                 }));
 
         return Text.dynamic(() -> {
@@ -273,8 +279,9 @@ public class GTMultiblockTextUtil {
                 () -> new BooleanSyncValue(rlMachine::isBatchEnabled));
         IntSyncValue batchAmount = syncManager.getOrCreateSyncHandler("batchAmount", IntSyncValue.class,
                 () -> new IntSyncValue(() -> {
-                    if (rlMachine.getRecipeLogic().getLastUnrolledRecipe() == null) return 0;
-                    return rlMachine.getRecipeLogic().getLastUnrolledRecipe().batchParallels;
+                    RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+                    if (recipeLogic.getLastUnrolledRecipe() == null) return 0;
+                    return recipeLogic.getLastUnrolledRecipe().batchParallels;
                 }));
 
         return Text.dynamic(() -> {
@@ -291,8 +298,9 @@ public class GTMultiblockTextUtil {
                                                         PanelSyncManager syncManager) {
         IntSyncValue subtickAmount = syncManager.getOrCreateSyncHandler("subtickAmount", IntSyncValue.class,
                 () -> new IntSyncValue(() -> {
-                    if (rlMachine.getRecipeLogic().getLastUnrolledRecipe() == null) return 0;
-                    return rlMachine.getRecipeLogic().getLastUnrolledRecipe().subtickParallels;
+                    RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+                    if (recipeLogic.getLastUnrolledRecipe() == null) return 0;
+                    return recipeLogic.getLastUnrolledRecipe().subtickParallels;
                 }));
 
         return Text.dynamic(() -> {
@@ -308,8 +316,9 @@ public class GTMultiblockTextUtil {
     public static TextWidget<?> addTotalRunsLine(WorkableMultiblockMachine rlMachine, PanelSyncManager syncManager) {
         IntSyncValue totalRunAmount = syncManager.getOrCreateSyncHandler("totalRunAmount", IntSyncValue.class,
                 () -> new IntSyncValue(() -> {
-                    if (rlMachine.getRecipeLogic().getLastUnrolledRecipe() == null) return 0;
-                    return rlMachine.getRecipeLogic().getLastUnrolledRecipe().getTotalRuns();
+                    RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+                    if (recipeLogic.getLastUnrolledRecipe() == null) return 0;
+                    return recipeLogic.getLastUnrolledRecipe().getTotalRuns();
                 }));
 
         return Text.dynamic(() -> {
@@ -380,16 +389,18 @@ public class GTMultiblockTextUtil {
                                                      Supplier<Component> workPaused,
                                                      Supplier<Component> runningPerfectly, Supplier<Component> idling,
                                                      Supplier<Component> waiting) {
+        RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+
         BooleanSyncValue isFormed = syncManager.getOrCreateSyncHandler("isFormed", BooleanSyncValue.class,
                 () -> new BooleanSyncValue(rlMachine::isFormed));
         BooleanSyncValue isWaiting = syncManager.getOrCreateSyncHandler("isWaiting",
                 BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isWaiting()));
+                () -> new BooleanSyncValue(recipeLogic::isWaiting));
         BooleanSyncValue isActive = syncManager.getOrCreateSyncHandler("isActive", BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isActive()));
+                () -> new BooleanSyncValue(recipeLogic::isActive));
         BooleanSyncValue isWorkingEnabled = syncManager.getOrCreateSyncHandler("isWorkingEnabled",
                 BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isWorkingEnabled()));
+                () -> new BooleanSyncValue(recipeLogic::isWorkingEnabled));
 
         return Text
                 .dynamic(() -> {
@@ -412,22 +423,24 @@ public class GTMultiblockTextUtil {
     @SuppressWarnings("unchecked")
     public static List<TextWidget<?>> addRecipeFailReasonLines(WorkableMultiblockMachine rlMachine,
                                                                PanelSyncManager syncManager) {
+        RecipeLogic recipeLogic = rlMachine.getRecipeLogic();
+
         BooleanSyncValue isFormed = syncManager.getOrCreateSyncHandler("isFormed", BooleanSyncValue.class,
                 () -> new BooleanSyncValue(rlMachine::isFormed));
 
         BooleanSyncValue isIdle = syncManager.getOrCreateSyncHandler("isIdle", BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isIdle()));
+                () -> new BooleanSyncValue(recipeLogic::isIdle));
         BooleanSyncValue hasRunningRecipe = syncManager.getOrCreateSyncHandler("hasRunningRecipe",
                 BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().getLastRecipe() != null));
+                () -> new BooleanSyncValue(() -> recipeLogic.getLastRecipe() != null));
         BooleanSyncValue isWaiting = syncManager.getOrCreateSyncHandler("isWaiting", BooleanSyncValue.class,
-                () -> new BooleanSyncValue(() -> rlMachine.getRecipeLogic().isWaiting()));
+                () -> new BooleanSyncValue(recipeLogic::isWaiting));
         GenericSyncValue<Component> bestFailureReason = (GenericSyncValue<Component>) syncManager
                 .getOrCreateSyncHandler("bestFailureReason", GenericSyncValue.class,
                         () -> GenericSyncValue.builder(Component.class)
                                 .nullable()
                                 .adapter(GTByteBufAdapters.COMPONENT)
-                                .getter(() -> rlMachine.getRecipeLogic().getBestFailureReason())
+                                .getter(recipeLogic::getBestFailureReason)
                                 .build());
         var lineList = new ArrayList<TextWidget<?>>();
 

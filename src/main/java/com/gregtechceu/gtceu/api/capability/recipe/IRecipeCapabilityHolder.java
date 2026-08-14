@@ -1,5 +1,7 @@
 package com.gregtechceu.gtceu.api.capability.recipe;
 
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineFeature;
 import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeHandlerList;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;

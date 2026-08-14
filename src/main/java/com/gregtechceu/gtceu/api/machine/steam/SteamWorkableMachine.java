@@ -165,11 +165,6 @@ public abstract class SteamWorkableMachine extends SteamMachine
     }
 
     @Override
-    public GTRecipeType getRecipeType() {
-        return recipeTypes[activeRecipeType];
-    }
-
-    @Override
     public void clientTick() {
         super.clientTick();
         if (previouslyMuffled != isMuffled) {

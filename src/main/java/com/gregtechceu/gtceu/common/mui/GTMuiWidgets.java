@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IVoidable;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDistinctPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.common.cover.data.BucketMode;
 import com.gregtechceu.gtceu.common.item.behavior.IntCircuitBehaviour;
 import com.gregtechceu.gtceu.common.machine.trait.AutoOutputTrait;
@@ -133,10 +134,10 @@ public class GTMuiWidgets {
                         (r) -> r.addLine(Text.lang(langKey + (value.getBoolValue() ? ".enabled" : ".disabled"))));
     }
 
-    public static ToggleButton createPowerButton(IRecipeLogicMachine recipeLogicMachine) {
+    public static ToggleButton createPowerButton(RecipeLogic rl) {
         return createToggleButton(
-                () -> recipeLogicMachine.getRecipeLogic().isWorkingEnabled(),
-                recipeLogicMachine::setWorkingEnabled,
+                rl::isWorkingEnabled,
+                rl::setWorkingEnabled,
                 GTGuiTextures.BUTTON_POWER[0],
                 GTGuiTextures.BUTTON_POWER[1],
                 "behaviour.soft_hammer");

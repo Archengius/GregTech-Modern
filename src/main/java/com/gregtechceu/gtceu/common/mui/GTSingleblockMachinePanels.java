@@ -2,8 +2,6 @@ package com.gregtechceu.gtceu.common.mui;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.SimpleGeneratorMachine;
-import com.gregtechceu.gtceu.api.machine.SimpleTieredMachine;
 import com.gregtechceu.gtceu.api.machine.mui.MachineUIPanelBuilder;
 import com.gregtechceu.gtceu.api.machine.steam.SimpleSteamMachine;
 import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
@@ -21,26 +19,13 @@ public class GTSingleblockMachinePanels {
     public static PanelFactory GENERAL_MACHINE = (PosGuiData data, PanelSyncManager syncManager, UISettings settings,
                                                   MetaMachine machine) -> {
 
-        GTRecipeType type;
-        RecipeLogic recipeLogic;
-        boolean isSteam = false;
-
-        if (machine instanceof SimpleTieredMachine simpleTieredMachine) {
-            type = simpleTieredMachine.getRecipeType();
-            recipeLogic = simpleTieredMachine.getRecipeLogic();
-        } else if (machine instanceof SimpleSteamMachine simpleSteamMachine) {
-            type = simpleSteamMachine.getRecipeType();
-            recipeLogic = simpleSteamMachine.recipeLogic;
-            isSteam = true;
-        } else if (machine instanceof SimpleGeneratorMachine simpleGeneratorMachine) {
-            type = simpleGeneratorMachine.getRecipeType();
-            recipeLogic = simpleGeneratorMachine.recipeLogic;
-        } else {
-            GTCEu.LOGGER.error(
-                    "{} is not a SimpleTieredMachine/SimpleGeneratorMachine/SimpleSteamMachine, cannot add slots to its content",
-                    machine.getDefinition().getName());
+        RecipeLogic recipeLogic = machine.getTrait(RecipeLogic.class);
+        if (recipeLogic == null) {
+            GTCEu.LOGGER.error("Machine instance {} {} does not have recipe logic, cannot create general machine panel", machine.getDefinition().getName(), machine.getBlockPos());
             return new ModularPanel<>(machine.getDefinition().getName());
         }
+        GTRecipeType type = recipeLogic.getRecipeType();
+        boolean isSteam = (machine instanceof SimpleSteamMachine);
 
         if (type.getUiLayout() == null) {
             GTCEu.LOGGER.error(

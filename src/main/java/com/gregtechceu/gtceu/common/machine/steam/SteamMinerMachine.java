@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.machine.feature.*;
 import com.gregtechceu.gtceu.api.machine.mui.MachineUIPanelBuilder;
 import com.gregtechceu.gtceu.api.machine.steam.SteamWorkableMachine;
 import com.gregtechceu.gtceu.api.machine.trait.notifiable.NotifiableItemStackHandler;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.sync_system.annotations.SaveField;
 import com.gregtechceu.gtceu.common.item.behavior.PortableScannerBehavior;
 import com.gregtechceu.gtceu.common.machine.trait.ExhaustVentMachineTrait;
@@ -151,13 +152,15 @@ public class SteamMinerMachine extends SteamWorkableMachine implements IControll
     @Override
     public void buildMainUI(ParentWidget<?> mainWidget, PosGuiData guiData, PanelSyncManager syncManager,
                             UISettings settings) {
-        IntSyncValue startX = new IntSyncValue(() -> getRecipeLogic().getStartX()).allowC2S();
-        IntSyncValue startY = new IntSyncValue(() -> getRecipeLogic().getStartY()).allowC2S();
-        IntSyncValue startZ = new IntSyncValue(() -> getRecipeLogic().getStartZ()).allowC2S();
-        IntSyncValue mineX = new IntSyncValue(() -> getRecipeLogic().getMineX()).allowC2S();
-        IntSyncValue mineY = new IntSyncValue(() -> getRecipeLogic().getMineY()).allowC2S();
-        IntSyncValue mineZ = new IntSyncValue(() -> getRecipeLogic().getMineZ()).allowC2S();
-        IntSyncValue workingArea = new IntSyncValue(() -> IMiner.getWorkingArea(getRecipeLogic().getCurrentRadius()))
+        SteamMinerLogic recipeLogic = getRecipeLogic();
+
+        IntSyncValue startX = new IntSyncValue(recipeLogic::getStartX).allowC2S();
+        IntSyncValue startY = new IntSyncValue(recipeLogic::getStartY).allowC2S();
+        IntSyncValue startZ = new IntSyncValue(recipeLogic::getStartZ).allowC2S();
+        IntSyncValue mineX = new IntSyncValue(recipeLogic::getMineX).allowC2S();
+        IntSyncValue mineY = new IntSyncValue(recipeLogic::getMineY).allowC2S();
+        IntSyncValue mineZ = new IntSyncValue(recipeLogic::getMineZ).allowC2S();
+        IntSyncValue workingArea = new IntSyncValue(() -> IMiner.getWorkingArea(recipeLogic.getCurrentRadius()))
                 .allowC2S();
 
         ListWidget<?, ?> textList = new ListWidget<>()
@@ -168,7 +171,7 @@ public class SteamMinerMachine extends SteamWorkableMachine implements IControll
                 .childSeparator(IIcon.EMPTY_2PX)
                 .child(Text
                         .dynamic(() -> Objects.requireNonNull(
-                                getRecipeLogic().getCustomProgressLine().copy().withStyle(ChatFormatting.WHITE)))
+                                recipeLogic.getCustomProgressLine().copy().withStyle(ChatFormatting.WHITE)))
                         .asWidget())
                 .child(Text.dynamic(
                         () -> Component.translatable("gtceu.machine.miner.x", startX.getIntValue(), mineX.getIntValue())

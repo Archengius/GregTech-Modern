@@ -33,14 +33,16 @@ public class ParallelLogic {
      */
     public static int getParallelAmount(MetaMachine machine, GTRecipe recipe, int parallelLimit) {
         if (parallelLimit <= 1) return parallelLimit;
-        if (!(machine instanceof IRecipeLogicMachine rlm)) return 1;
+        RecipeLogic recipeLogic = machine.getTrait(RecipeLogic.class);
+
+        if (recipeLogic == null) return 1;
         // First check if we are limited by recipe inputs. This can short circuit a lot of consecutive checking
-        int maxInputMultiplier = getMaxByInput(rlm, recipe, parallelLimit, Collections.emptyList());
+        int maxInputMultiplier = getMaxByInput(recipeLogic.getRLMachine(), recipe, parallelLimit, Collections.emptyList());
         if (maxInputMultiplier == 0) return 0;
 
         // Simulate the merging of the maximum amount of recipes that can be run with these items
         // and limit by the amount we can successfully merge
-        return limitByOutputMerging(rlm, recipe, maxInputMultiplier, rlm::canVoidRecipeOutputs,
+        return limitByOutputMerging(recipeLogic.getRLMachine(), recipe, maxInputMultiplier, recipeLogic.getRLMachine()::canVoidRecipeOutputs,
                 Collections.emptyList());
     }
 
@@ -64,7 +66,9 @@ public class ParallelLogic {
                     Component reason = Component.translatable("gtceu.recipe_logic.insufficient_in")
                             .append(": ")
                             .append(cap.getName());
-                    RecipeLogic.putFailureReason(holder, recipe, reason);
+                    if (holder instanceof MetaMachine machine) {
+                        machine.getTraitOptional(RecipeLogic.class).ifPresent(rl -> rl.putFailureReason(recipe, reason));
+                    }
                     return 0;
                 }
                 minimum = Math.min(minimum, capParallel);
@@ -80,7 +84,9 @@ public class ParallelLogic {
                     Component reason = Component.translatable("gtceu.recipe_logic.insufficient_in")
                             .append(": ")
                             .append(cap.getName());
-                    RecipeLogic.putFailureReason(holder, recipe, reason);
+                    if (holder instanceof MetaMachine machine) {
+                        machine.getTraitOptional(RecipeLogic.class).ifPresent(rl -> rl.putFailureReason(recipe, reason));
+                    }
                     return 0;
                 }
                 minimum = Math.min(minimum, capParallel);
@@ -90,7 +96,9 @@ public class ParallelLogic {
             Component reason = Component.translatable("gtceu.recipe_logic.no_capabilities")
                     .append(Component.literal(": "))
                     .append(Component.translatable(IO.IN.getTooltip()));
-            RecipeLogic.putFailureReason(holder, recipe, reason);
+            if (holder instanceof MetaMachine machine) {
+                machine.getTraitOptional(RecipeLogic.class).ifPresent(rl -> rl.putFailureReason(recipe, reason));
+            }
             return 0;
         }
         return minimum;
@@ -120,7 +128,9 @@ public class ParallelLogic {
                     Component reason = Component.translatable("gtceu.recipe_logic.insufficient_out")
                             .append(": ")
                             .append(cap.getName());
-                    RecipeLogic.putFailureReason(holder, recipe, reason);
+                    if (holder instanceof MetaMachine machine) {
+                        machine.getTraitOptional(RecipeLogic.class).ifPresent(rl -> rl.putFailureReason(recipe, reason));
+                    }
                     return 0;
                 }
                 max = Math.min(max, limit);
@@ -138,7 +148,9 @@ public class ParallelLogic {
                     Component reason = Component.translatable("gtceu.recipe_logic.insufficient_out")
                             .append(": ")
                             .append(cap.getName());
-                    RecipeLogic.putFailureReason(holder, recipe, reason);
+                    if (holder instanceof MetaMachine machine) {
+                        machine.getTraitOptional(RecipeLogic.class).ifPresent(rl -> rl.putFailureReason(recipe, reason));
+                    }
                     return 0;
                 }
                 max = Math.min(max, limit);
@@ -157,14 +169,16 @@ public class ParallelLogic {
      */
     public static int getParallelAmountWithoutEU(MetaMachine machine, GTRecipe recipe, int parallelLimit) {
         if (parallelLimit <= 1) return parallelLimit;
-        if (!(machine instanceof IRecipeLogicMachine rlm)) return 1;
+        RecipeLogic recipeLogic = machine.getTrait(RecipeLogic.class);
+
+        if (recipeLogic == null) return 1;
         // First check if we are limited by recipe inputs. This can short circuit a lot of consecutive checking
-        int maxInputMultiplier = getMaxByInput(rlm, recipe, parallelLimit, List.of(EURecipeCapability.CAP));
+        int maxInputMultiplier = getMaxByInput(recipeLogic.getRLMachine(), recipe, parallelLimit, List.of(EURecipeCapability.CAP));
         if (maxInputMultiplier == 0) return 0;
 
         // Simulate the merging of the maximum amount of recipes that can be run with these items
         // and limit by the amount we can successfully merge
-        return limitByOutputMerging(rlm, recipe, maxInputMultiplier, rlm::canVoidRecipeOutputs,
+        return limitByOutputMerging(recipeLogic.getRLMachine(), recipe, maxInputMultiplier, recipeLogic.getRLMachine()::canVoidRecipeOutputs,
                 List.of(EURecipeCapability.CAP));
     }
 

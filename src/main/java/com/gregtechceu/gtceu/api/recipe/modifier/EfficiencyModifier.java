@@ -2,6 +2,7 @@ package com.gregtechceu.gtceu.api.recipe.modifier;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 
 import com.google.common.base.Preconditions;
@@ -60,11 +61,12 @@ public class EfficiencyModifier implements RecipeModifier {
      */
     @Override
     public @NotNull ModifierFunction getModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
-        if (!(machine instanceof IRecipeLogicMachine rlm)) {
+        var recipeLogic = machine.getTrait(RecipeLogic.class);
+        if (recipeLogic == null) {
             return RecipeModifier.nullWrongType(IRecipeLogicMachine.class, machine);
         }
         if (recipe.duration <= 1) return ModifierFunction.IDENTITY;
-        int runs = rlm.getRecipeLogic().getConsecutiveRecipes();
+        int runs = recipeLogic.getConsecutiveRecipes();
         double mult;
         // Heuristic to not do insane floating point math - if you need more than this to get to the cap, seek help
         if (runs > heuristic) mult = hardCap;

@@ -19,13 +19,16 @@ import org.jetbrains.annotations.Nullable;
 public interface IRecipeLogicMachine extends IRecipeCapabilityHolder, IMachineFeature, IWorkable, IVoidable {
 
     /**
-     * RecipeType held
+     * Gets the possible recipe types for this machine.
      */
     @NotNull
     GTRecipeType[] getRecipeTypes();
 
     @NotNull
-    GTRecipeType getRecipeType();
+    default GTRecipeType getRecipeType() {
+        int index = getActiveRecipeType() >= 0 && getActiveRecipeType() < getRecipeTypes().length ? getActiveRecipeType() : 0;
+        return getRecipeTypes()[index];
+    }
 
     int getActiveRecipeType();
 

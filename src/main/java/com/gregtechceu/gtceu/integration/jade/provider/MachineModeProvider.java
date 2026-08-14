@@ -3,6 +3,7 @@ package com.gregtechceu.gtceu.integration.jade.provider;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 
 import net.minecraft.ChatFormatting;
@@ -19,30 +20,28 @@ import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public class MachineModeProvider extends MachineInfoProvider<MetaMachine, CompoundTag> {
+public class MachineModeProvider extends MachineTraitProvider<RecipeLogic, CompoundTag> {
 
     public MachineModeProvider() {
-        super(GTCEu.id("machine_mode"), MetaMachine.class);
+        super(GTCEu.id("machine_mode"), RecipeLogic.class);
     }
 
     @Override
-    protected CompoundTag write(MetaMachine machine) {
+    protected CompoundTag write(RecipeLogic recipeLogic) {
         var compoundTag = new CompoundTag();
-        GTRecipeType[] recipeTypes = machine.getDefinition().getRecipeTypes();
+        GTRecipeType[] recipeTypes = recipeLogic.getMachine().getDefinition().getRecipeTypes();
         if (recipeTypes.length > 1) {
-            if (machine instanceof IRecipeLogicMachine recipeLogicMachine) {
-                ListTag recipeTypesTagList = new ListTag();
-                GTRecipeType currentRecipeType = recipeLogicMachine.getRecipeType();
-                int currentRecipeTypeIndex = -1;
-                for (int i = 0; i < recipeTypes.length; i++) {
-                    if (recipeTypes[i] == currentRecipeType) {
-                        currentRecipeTypeIndex = i;
-                    }
-                    recipeTypesTagList.add(StringTag.valueOf(recipeTypes[i].registryName.toString()));
+            ListTag recipeTypesTagList = new ListTag();
+            GTRecipeType currentRecipeType = recipeLogic.getRecipeType();
+            int currentRecipeTypeIndex = -1;
+            for (int i = 0; i < recipeTypes.length; i++) {
+                if (recipeTypes[i] == currentRecipeType) {
+                    currentRecipeTypeIndex = i;
                 }
-                compoundTag.put("RecipeTypes", recipeTypesTagList);
-                compoundTag.putInt("CurrentRecipeType", currentRecipeTypeIndex);
+                recipeTypesTagList.add(StringTag.valueOf(recipeTypes[i].registryName.toString()));
             }
+            compoundTag.put("RecipeTypes", recipeTypesTagList);
+            compoundTag.putInt("CurrentRecipeType", currentRecipeTypeIndex);
         }
         return compoundTag;
     }

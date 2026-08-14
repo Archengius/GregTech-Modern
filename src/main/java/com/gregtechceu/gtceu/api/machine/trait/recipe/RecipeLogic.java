@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
 import com.gregtechceu.gtceu.api.recipe.ActionResult;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.sound.AutoReleasedSound;
@@ -179,6 +180,26 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
         return List.of(IRecipeLogicMachine.class);
     }
 
+    /**
+     * Gets the possible recipe types for the machine this recipe logic is attached to.
+     */
+    public GTRecipeType[] getRecipeTypes() {
+        return getRLMachine().getRecipeTypes();
+    }
+
+    public GTRecipeType getRecipeType() {
+        int index = getActiveRecipeType() >= 0 && getActiveRecipeType() < getRecipeTypes().length ? getActiveRecipeType() : 0;
+        return getRecipeTypes()[index];
+    }
+
+    int getActiveRecipeType() {
+        return getRLMachine().getActiveRecipeType();
+    }
+
+    public void setActiveRecipeType(int type) {
+        getRLMachine().setActiveRecipeType(type);
+    }
+
     @SuppressWarnings("unused")
     @ClientFieldChangeListener(fieldName = "status")
     protected void onStatusSynced() {
@@ -307,7 +328,7 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
             if (recipeMatch.isSuccess()) {
                 setupRecipe(modified);
             } else {
-                recordFailureReason(match, recipeMatch.reason(), recipeMatch.score());
+                putFailureReason(match, recipeMatch.reason(), recipeMatch.score());
             }
             if (lastRecipe != null && getStatus() == Status.WORKING) {
                 lastOriginRecipe = match;
@@ -378,7 +399,7 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
     }
 
     public Iterator<GTRecipe> searchRecipe() {
-        return getRLMachine().getRecipeType().searchRecipe(getRLMachine(), r -> true);
+        return getRecipeType().searchRecipe(getRLMachine(), r -> true);
     }
 
     public void findAndHandleRecipe() {
@@ -397,7 +418,7 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
                 recipeDirty = false;
                 return;
             }
-            recordFailureReason(last, lastCheck.reason(), Double.POSITIVE_INFINITY);
+            putFailureReason(last, lastCheck.reason(), Double.POSITIVE_INFINITY);
         }
 
         // try to find and handle a new recipe
@@ -511,7 +532,7 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
     public void setWaiting(@Nullable Component reason) {
         setStatus(Status.WAITING);
         clearFailureReason();
-        recordFailureReason(lastRecipe, reason, Double.POSITIVE_INFINITY);
+        putFailureReason(lastRecipe, reason, Double.POSITIVE_INFINITY);
         getRLMachine().onWaiting();
     }
 
@@ -661,7 +682,7 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
     @OnlyIn(Dist.CLIENT)
     public void updateSound() {
         if (isWorking() && getRLMachine().shouldWorkingPlaySound()) {
-            var sound = getRLMachine().getRecipeType().getSound();
+            var sound = getRecipeType().getSound();
             if (workingSound instanceof AutoReleasedSound soundEntry) {
                 if (soundEntry.soundEntry == sound && !soundEntry.isStopped()) {
                     return;
@@ -748,20 +769,14 @@ public class RecipeLogic extends MachineTrait implements IWorkable {
                         });
     }
 
-    public static void putFailureReason(Object machine, GTRecipe recipe, Component reason) {
-        if (machine instanceof IRecipeLogicMachine rlm) {
-            putFailureReason(rlm.getRecipeLogic(), recipe, reason, Double.POSITIVE_INFINITY);
-        }
-    }
-
-    public static void putFailureReason(RecipeLogic logic, GTRecipe recipe, Component reason, double score) {
-        logic.recordFailureReason(recipe, reason, score);
+    public void putFailureReason(GTRecipe recipe, Component reason) {
+        putFailureReason(recipe, reason, Double.POSITIVE_INFINITY);
     }
 
     /**
      * Record a failure reason as the one to display, along with the recipe it belongs to.
      */
-    protected void recordFailureReason(@Nullable GTRecipe recipe, @Nullable Component reason, double score) {
+    public void putFailureReason(@Nullable GTRecipe recipe, @Nullable Component reason, double score) {
         if (reason != null && !reason.getString().isBlank()) {
             if (score > bestFailureScore) {
                 bestFailureScore = score;

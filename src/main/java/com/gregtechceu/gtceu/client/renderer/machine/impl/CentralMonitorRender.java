@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.capability.IMonitorComponent;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.IItemComponent;
 import com.gregtechceu.gtceu.api.item.component.IMonitorModuleItem;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 import com.gregtechceu.gtceu.client.util.RenderUtil;
@@ -39,12 +40,13 @@ public class CentralMonitorRender extends DynamicRender<CentralMonitorMachine, C
     @Override
     public void render(CentralMonitorMachine machine, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
                        int packedLight, int packedOverlay) {
+
         poseStack.pushPose();
         RenderUtil.moveToFace(poseStack, 0.5f, 0.5f, 0.5f, machine.getFrontFacing());
         RenderUtil.rotateToFace(poseStack, machine.getFrontFacing(), Direction.NORTH);
         poseStack.translate(-machine.getRightDist() - 0.5f, -machine.getUpDist() - 0.5f, SCREEN_OFFSET_Z);
 
-        if (machine.getRecipeLogic().isWorking()) {
+        if (machine.getTraitOrThrow(RecipeLogic.class).isWorking()) {
             for (MonitorGroup group : machine.getMonitorGroups()) {
                 ItemStack itemStack = group.getItemStackHandler().getStackInSlot(0);
                 if (!(itemStack.getItem() instanceof ComponentItem item)) {

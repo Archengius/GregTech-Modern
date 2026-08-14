@@ -32,6 +32,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
+import java.util.Objects;
+
 /**
  * Test cases:
  * Do many passes of most tests as a safeguard against bad rolls
@@ -1121,6 +1123,8 @@ public class IntProviderFluidIngredientTest {
     public static void singleblockRangedTickFluidOutput(GameTestHelper helper) {
         SimpleTieredMachine machine = (SimpleTieredMachine) getMetaMachine(
                 helper.getBlockEntity(new BlockPos(0, 1, 0)));
+
+        Objects.requireNonNull(machine, "Invalid machine BE");
 
         machine.setRecipeType(CR_RECIPE_TYPE);
         NotifiableItemStackHandler itemIn = (NotifiableItemStackHandler) machine

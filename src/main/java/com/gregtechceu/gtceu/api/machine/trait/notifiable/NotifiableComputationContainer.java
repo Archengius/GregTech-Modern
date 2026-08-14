@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.MultiblockPartMachine;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.common.blockentity.OpticalPipeBlockEntity;
 import com.gregtechceu.gtceu.utils.GTUtil;
@@ -194,15 +195,12 @@ public class NotifiableComputationContainer extends NotifiableRecipeHandlerTrait
                     int drawn = provider.requestCWUt(availableCWUt, simulate);
                     if (!simulate) {
                         var machine = getMachine();
-                        if (machine instanceof IRecipeLogicMachine rlm) {
-                            // remove the progress the recipe logic adds.
-                            rlm.getRecipeLogic().setProgressDelta(drawn - 1);
+                        RecipeLogic recipeLogic = machine.getTrait(RecipeLogic.class);
+                        if (recipeLogic != null) {
+                            recipeLogic.setProgressDelta(drawn - 1);
                         } else if (machine instanceof MultiblockPartMachine multiPart) {
-                            for (MultiblockControllerMachine controller : multiPart.getControllers()) {
-                                if (controller instanceof IRecipeLogicMachine rlm) {
-                                    rlm.getRecipeLogic().setProgressDelta(drawn - 1);
-                                }
-                            }
+                            multiPart.getControllers().forEach(c -> c.getTraitOptional(RecipeLogic.class)
+                                    .ifPresent(rl -> rl.setProgressDelta(drawn - 1)));
                         }
                     }
                     sum -= drawn;

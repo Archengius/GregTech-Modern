@@ -3,6 +3,7 @@ package com.gregtechceu.gtceu.common.machine.multiblock.electric;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.blockentity.PipeBlockEntity;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
@@ -42,7 +43,7 @@ public class LargeSteamTurbineTest {
         final var machine = (LargeTurbineMachine) helper.getBlockEntity(new BlockPos(1, 3, 2));
         final var dynamo = (EnergyHatchPartMachine) helper.getBlockEntity(new BlockPos(2, 3, 1));
         helper.runAfterDelay(20, () -> {
-            helper.assertTrue(machine.getRecipeLogic().isWorking(), "Expected turbine to be running");
+            helper.assertTrue(machine.getTraitOrThrow(RecipeLogic.class).isWorking(), "Expected turbine to be running");
             rotorPart.setRotorSpeed(3000);
             helper.runAfterDelay(40, () -> {
                 helper.assertTrue(dynamo.energyContainer.getEnergyStored() > 0,
@@ -65,16 +66,18 @@ public class LargeSteamTurbineTest {
         }
         final var machine = (LargeTurbineMachine) helper.getBlockEntity(new BlockPos(1, 3, 2));
         final var dynamo = (EnergyHatchPartMachine) helper.getBlockEntity(new BlockPos(2, 3, 1));
+        final var recipeLogic = machine.getTraitOrThrow(RecipeLogic.class);
+
         helper.runAfterDelay(20, () -> {
             {
                 final var rotor = rotorPart.inventory.storage.getStackInSlot(0);
                 final var behavior = TurbineRotorBehaviour.getBehaviour(rotor);
                 behavior.setPartDamage(rotor, behavior.getMaxDurability(rotor) - 1);
             }
-            helper.assertTrue(machine.getRecipeLogic().isWorking(), "Expected turbine to be running");
+            helper.assertTrue(recipeLogic.isWorking(), "Expected turbine to be running");
             rotorPart.setRotorSpeed(0);
             helper.runAfterDelay(40, () -> {
-                helper.assertTrue(!machine.getRecipeLogic().isWorking(),
+                helper.assertTrue(!recipeLogic.isWorking(),
                         "Expected turbine to be not running after the rotor broke");
                 helper.succeed();
             });
@@ -131,7 +134,7 @@ public class LargeSteamTurbineTest {
                 machine.setWorkingEnabled(false);
             }
 
-            final boolean working = machine.getRecipeLogic().isWorking();
+            final boolean working = machine.getTraitOrThrow(RecipeLogic.class).isWorking();
             final int speed = rotorPart.getRotorSpeed();
             final int last = lastSpeed.getAndSet(speed);
             final boolean previouslyWorking = wasWorking.getAndSet(working);
@@ -200,7 +203,7 @@ public class LargeSteamTurbineTest {
         final var dynamo = (EnergyHatchPartMachine) helper.getBlockEntity(new BlockPos(2, 3, 1));
         dynamo.energyContainer.setEnergyStored(dynamo.energyContainer.getEnergyCapacity());
         helper.runAfterDelay(20, () -> {
-            helper.assertTrue(machine.getRecipeLogic().isWorking(), "Expected turbine to be running");
+            helper.assertTrue(machine.getTraitOrThrow(RecipeLogic.class).isWorking(), "Expected turbine to be running");
             rotorPart.setRotorSpeed(3000);
             helper.runAfterDelay(40, () -> {
                 helper.assertTrue(
@@ -223,7 +226,7 @@ public class LargeSteamTurbineTest {
         final var machine = (LargeTurbineMachine) helper.getBlockEntity(new BlockPos(1, 3, 2));
         final var dynamo = (EnergyHatchPartMachine) helper.getBlockEntity(new BlockPos(2, 3, 1));
         helper.onEachTick(() -> {
-            helper.assertTrue(!machine.getRecipeLogic().isWorking(), "Expected turbine to refuse to run");
+            helper.assertTrue(!machine.getTraitOrThrow(RecipeLogic.class).isWorking(), "Expected turbine to refuse to run");
             rotorPart.setRotorSpeed(3000);
         });
         helper.runAtTickTime(50, () -> {
@@ -245,7 +248,7 @@ public class LargeSteamTurbineTest {
         final var machine = (LargeTurbineMachine) helper.getBlockEntity(new BlockPos(1, 3, 2));
         final var dynamo = (EnergyHatchPartMachine) helper.getBlockEntity(new BlockPos(2, 3, 1));
         helper.onEachTick(() -> {
-            helper.assertTrue(!machine.getRecipeLogic().isWorking(), "Expected turbine to refuse to run");
+            helper.assertTrue(!machine.getTraitOrThrow(RecipeLogic.class).isWorking(), "Expected turbine to refuse to run");
             rotorPart.setRotorSpeed(3000);
         });
         helper.runAtTickTime(50, () -> {

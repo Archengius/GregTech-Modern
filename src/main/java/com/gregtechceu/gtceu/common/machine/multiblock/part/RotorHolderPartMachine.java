@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
 import com.gregtechceu.gtceu.api.machine.trait.notifiable.NotifiableItemStackHandler;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.multiblock.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.sync_system.annotations.SaveField;
@@ -160,9 +161,8 @@ public class RotorHolderPartMachine extends TieredPartMachine implements IMuiMac
     }
 
     private void updateRotorSpeed() {
-        if (isFormed() && getControllers().first() instanceof WorkableMultiblockMachine workable) {
-            if (workable.getRecipeLogic().isWorking()) return;
-        }
+        RecipeLogic controllerRecipeLogic = getControllers().first().getTrait(RecipeLogic.class);
+        if (controllerRecipeLogic == null || !isFormed() || controllerRecipeLogic.isWorking()) return;
         if (!hasRotor()) {
             setRotorSpeed(0);
         } else if (getRotorSpeed() > 0) {

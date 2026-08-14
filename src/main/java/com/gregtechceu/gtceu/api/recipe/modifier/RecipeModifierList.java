@@ -39,7 +39,7 @@ public final class RecipeModifierList implements RecipeModifier {
             var func = modifier.getModifier(machine, runningRecipe);
             runningRecipe = func.apply(runningRecipe);
             if (runningRecipe == null) {
-                RecipeLogic.putFailureReason(machine, recipe, func.getFailReason());
+                machine.getTraitOptional(RecipeLogic.class).ifPresent(rl -> rl.putFailureReason(recipe, func.getFailReason()));
                 return ModifierFunction.NULL;
             }
             result = func.compose(result);

@@ -238,12 +238,6 @@ public abstract class WorkableTieredMachine extends TieredEnergyMachine implemen
             recipeLogic.updateSound();
         }
     }
-
-    public GTRecipeType getRecipeType() {
-        int index = activeRecipeType >= 0 && activeRecipeType < recipeTypes.length ? activeRecipeType : 0;
-        return recipeTypes[index];
-    }
-
     /**
      * Sets a recipe type of the machine.
      * FOR INTERNAL / TESTING USE ONLY!

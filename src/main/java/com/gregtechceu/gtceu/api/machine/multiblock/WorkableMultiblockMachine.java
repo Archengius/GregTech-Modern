@@ -285,11 +285,6 @@ public abstract class WorkableMultiblockMachine extends MultiblockControllerMach
         return IRecipeLogicMachine.super.onWorking();
     }
 
-    public GTRecipeType getRecipeType() {
-        int index = activeRecipeType >= 0 && activeRecipeType < recipeTypes.length ? activeRecipeType : 0;
-        return recipeTypes[index];
-    }
-
     public void cycleActiveRecipeType() {
         int newActiveRecipeType = (getActiveRecipeType() + 1) % recipeTypes.length;
         setActiveRecipeType(newActiveRecipeType);

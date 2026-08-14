@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IMuiMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
+import com.gregtechceu.gtceu.api.machine.trait.recipe.RecipeLogic;
 import com.gregtechceu.gtceu.api.sync_system.annotations.SaveField;
 import com.gregtechceu.gtceu.utils.GTMath;
 
@@ -44,11 +45,7 @@ public class ParallelHatchPartMachine extends TieredPartMachine implements IMuiM
 
     public void setCurrentParallel(int parallelAmount) {
         this.currentParallel = Mth.clamp(parallelAmount, MIN_PARALLEL, this.maxParallel);
-        for (MultiblockControllerMachine controller : this.getControllers()) {
-            if (controller instanceof IRecipeLogicMachine rlm) {
-                rlm.getRecipeLogic().markLastRecipeDirty();
-            }
-        }
+        getControllers().forEach(c -> c.getTraitOptional(RecipeLogic.class).ifPresent(RecipeLogic::markLastRecipeDirty));
     }
 
     @Override

@@ -118,7 +118,7 @@ public class RecipeLogicTest {
                 "Controller didn't register all 6 parts after structure check, only registered " +
                         busHolder.controller.getParts().size());
 
-        RecipeLogic recipeLogic = busHolder.controller.getRecipeLogic();
+        RecipeLogic recipeLogic = busHolder.controller.getTraitOrThrow(RecipeLogic.class);
 
         recipeLogic.findAndHandleRecipe();
 
@@ -196,7 +196,7 @@ public class RecipeLogicTest {
                 .getCapabilitiesFlat(IO.OUT, ItemRecipeCapability.CAP).get(0);
 
 
-        RecipeLogic recipeLogic = machine.getRecipeLogic();
+        RecipeLogic recipeLogic = machine.getTraitOrThrow(RecipeLogic.class);
 
         recipeLogic.findAndHandleRecipe();
 
@@ -278,7 +278,7 @@ public class RecipeLogicTest {
     @GameTest(template = "lcr_input_separation", batch = "RecipeLogic")
     public static void recipeLogicClosestFailureReasonTest(GameTestHelper helper) {
         RecipeLogicTest.BusHolder busHolder = getBussesAndForm(helper);
-        RecipeLogic recipeLogic = busHolder.controller.getRecipeLogic();
+        RecipeLogic recipeLogic = busHolder.controller.getTraitOrThrow(RecipeLogic.class);
 
         // Candidate A (test_close_a): dirt satisfied, gravel short -> 1 of 2 contents = score 0.5
         busHolder.inputBus1.getInventory().setStackInSlot(0, new ItemStack(Blocks.DIRT, 16));
@@ -312,7 +312,7 @@ public class RecipeLogicTest {
     @GameTest(template = "lcr_input_separation", batch = "RecipeLogic")
     public static void recipeLogicLastRecipePriorityTest(GameTestHelper helper) {
         RecipeLogicTest.BusHolder busHolder = getBussesAndForm(helper);
-        RecipeLogic recipeLogic = busHolder.controller.getRecipeLogic();
+        RecipeLogic recipeLogic = busHolder.controller.getTraitOrThrow(RecipeLogic.class);
 
         // Start the priority recipe so it becomes the "last recipe" (its single emerald is consumed on setup).
         busHolder.inputBus1.getInventory().setStackInSlot(0, new ItemStack(Items.EMERALD, 1));
