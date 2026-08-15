@@ -1677,11 +1677,7 @@ public class GTRecipeBuilder {
         if (itemMaterialInfo || fluidMaterialInfo) {
             addOutputMaterialInfo();
         }
-
-        tempItemStacks.clear();
-        tempItemMaterialStacks.clear();
-        tempFluidStacks.clear();
-
+        
         consumer.accept(build());
     }
 
