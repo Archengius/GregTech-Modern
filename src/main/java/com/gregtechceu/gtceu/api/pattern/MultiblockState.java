@@ -102,7 +102,8 @@ public class MultiblockState {
 
     public void setError(PatternError error) {
         this.error = error;
-        if (error != null) {
+        // Errors stored in static variables should not hold world state to avoid leaking it
+        if (error != null && error != UNLOAD_ERROR && error != UNINIT_ERROR) {
             error.setWorldState(this);
         }
     }
