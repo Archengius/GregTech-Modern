@@ -1,14 +1,13 @@
 package com.gregtechceu.gtceu.common.cover;
 
 import com.gregtechceu.gtceu.api.capability.ICoverable;
-import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
 import com.gregtechceu.gtceu.api.cover.filter.ItemFilter;
 import com.gregtechceu.gtceu.api.cover.filter.SimpleItemFilter;
 import com.gregtechceu.gtceu.api.gui.widget.EnumSelectorWidget;
 import com.gregtechceu.gtceu.api.gui.widget.IntInputWidget;
 import com.gregtechceu.gtceu.common.cover.data.TransferMode;
-import com.gregtechceu.gtceu.common.pipelike.item.ItemNetHandler;
+import com.gregtechceu.gtceu.utils.GTTransferUtils;
 
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
@@ -68,12 +67,6 @@ public class RobotArmCover extends ConveyorCover {
 
     @Override
     protected int doTransferItems(IItemHandler itemHandler, IItemHandler myItemHandler, int maxTransferAmount) {
-        if (io == IO.OUT && itemHandler instanceof ItemNetHandler && transferMode == TransferMode.KEEP_EXACT) {
-            return 0;
-        }
-        if (io == IO.IN && myItemHandler instanceof ItemNetHandler && transferMode == TransferMode.KEEP_EXACT) {
-            return 0;
-        }
         return switch (transferMode) {
             case TRANSFER_ANY -> moveInventoryItems(itemHandler, myItemHandler, maxTransferAmount);
             case TRANSFER_EXACT -> doTransferExact(itemHandler, myItemHandler, maxTransferAmount);
@@ -120,28 +113,8 @@ public class RobotArmCover extends ConveyorCover {
     }
 
     protected int doKeepExact(IItemHandler sourceInventory, IItemHandler targetInventory, int maxTransferAmount) {
-        Map<ItemStack, GroupItemInfo> targetItemAmounts = countInventoryItemsByMatchSlot(targetInventory);
-        Map<ItemStack, GroupItemInfo> sourceItemAmounts = countInventoryItemsByMatchSlot(sourceInventory);
-
-        Iterator<ItemStack> iterator = sourceItemAmounts.keySet().iterator();
-        while (iterator.hasNext()) {
-            ItemStack filteredItem = iterator.next();
-            GroupItemInfo sourceInfo = sourceItemAmounts.get(filteredItem);
-            int itemToKeepAmount = getFilteredItemAmount(sourceInfo.itemStack);
-
-            int itemAmount = 0;
-            if (targetItemAmounts.containsKey(filteredItem)) {
-                GroupItemInfo destItemInfo = targetItemAmounts.get(filteredItem);
-                itemAmount = destItemInfo.totalCount;
-            }
-            if (itemAmount < itemToKeepAmount) {
-                sourceInfo.totalCount = itemToKeepAmount - itemAmount;
-            } else {
-                iterator.remove();
-            }
-        }
-
-        return moveInventoryItems(sourceInventory, targetInventory, sourceItemAmounts, maxTransferAmount);
+        return GTTransferUtils.stockInventoryItems(sourceInventory, targetInventory, maxTransferAmount,
+                this::getFilteredItemAmount);
     }
 
     private int getFilteredItemAmount(ItemStack itemStack) {
@@ -149,6 +122,8 @@ public class RobotArmCover extends ConveyorCover {
             return globalTransferLimit;
 
         ItemFilter filter = filterHandler.getFilter();
+        if (!filter.test(itemStack))
+            return 0;
         return filter.supportsAmounts() ? filter.testItemCount(itemStack) : globalTransferLimit;
     }
 

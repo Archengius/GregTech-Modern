@@ -25,12 +25,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.ToIntFunction;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -146,6 +149,42 @@ public class ItemFilterCover extends CoverBehavior implements IUICover {
                 return ItemStack.EMPTY;
             }
             return simulate ? result : super.extractItem(slot, amount, false);
+        }
+
+        @Override
+        public ItemStack insertItemBundle(ItemStack stack, boolean simulate) {
+            if (filterMode == FilterMode.FILTER_EXTRACT) {
+                if (allowFlow == ManualIOMode.DISABLED) {
+                    return stack;
+                }
+                if (allowFlow == ManualIOMode.UNFILTERED) {
+                    return super.insertItemBundle(stack, simulate);
+                }
+            }
+            if (!getItemFilter().test(stack)) {
+                return stack;
+            }
+            return super.insertItemBundle(stack, simulate);
+        }
+
+        @Override
+        public int stockInventoryItems(IItemHandler sourceInventory, int maxTransferAmount,
+                                       ToIntFunction<ItemStack> itemKeepAmountProvider) {
+            ToIntFunction<ItemStack> wrappedItemKeepAmountProvider = itemStack -> {
+                if (filterMode == FilterMode.FILTER_EXTRACT) {
+                    if (allowFlow == ManualIOMode.DISABLED) {
+                        return 0;
+                    }
+                    if (allowFlow == ManualIOMode.UNFILTERED) {
+                        return itemKeepAmountProvider.applyAsInt(itemStack);
+                    }
+                }
+                if (!getItemFilter().test(itemStack)) {
+                    return 0;
+                }
+                return itemKeepAmountProvider.applyAsInt(itemStack);
+            };
+            return super.stockInventoryItems(sourceInventory, maxTransferAmount, wrappedItemKeepAmountProvider);
         }
     }
 
