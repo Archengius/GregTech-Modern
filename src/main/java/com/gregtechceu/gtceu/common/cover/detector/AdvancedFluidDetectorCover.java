@@ -23,7 +23,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -112,7 +111,7 @@ public class AdvancedFluidDetectorCover extends FluidDetectorCover implements IU
     }
 
     public void setMinValue(int minValue) {
-        this.minValue = Mth.clamp(minValue, 0, maxValue - 1);
+        this.minValue = Math.max(minValue, 0);
     }
 
     public void setMaxValue(int maxValue) {
