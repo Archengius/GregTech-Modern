@@ -455,7 +455,7 @@ public class GCYMMachines {
                     .aisle("XXXXX", "CAAAC", "GAAAG", "CAAAC", "XXXXX")
                     .aisle("#XSX#", "#CCC#", "#GGG#", "#CCC#", "#XXX#")
                     .where('S', controller(blocks(definition.get())))
-                    .where('X', blocks(CASING_HIGH_TEMPERATURE_SMELTING.get()).setMinGlobalLimited(30)
+                    .where('X', blocks(CASING_HIGH_TEMPERATURE_SMELTING.get()).setMinGlobalLimited(20)
                             .or(autoAbilities(definition.getRecipeTypes()))
                             .or(Predicates.autoAbilities(true, false, false)))
                     .where('C', heatingCoils())
