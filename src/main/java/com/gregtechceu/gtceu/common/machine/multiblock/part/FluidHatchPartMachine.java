@@ -2,6 +2,9 @@ package com.gregtechceu.gtceu.common.machine.multiblock.part;
 
 import com.gregtechceu.gtceu.api.blockentity.IPaintable;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.cover.filter.FilterHandler;
+import com.gregtechceu.gtceu.api.cover.filter.FilterHandlers;
+import com.gregtechceu.gtceu.api.cover.filter.FluidFilter;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
 import com.gregtechceu.gtceu.api.gui.widget.PhantomFluidWidget;
@@ -79,6 +82,10 @@ public class FluidHatchPartMachine extends TieredIOPartMachine implements IMachi
     @Getter
     @Persisted
     protected final NotifiableItemStackHandler circuitInventory;
+    @Persisted
+    @DescSynced
+    @Getter
+    protected final FilterHandler<FluidStack, FluidFilter> filterHandler;
 
     // The `Object... args` parameter is necessary in case a superclass needs to pass any args along to createTank().
     // We can't use fields here because those won't be available while createTank() is called.
@@ -89,6 +96,7 @@ public class FluidHatchPartMachine extends TieredIOPartMachine implements IMachi
         this.tank = createTank(initialCapacity, slots, args);
         this.circuitSlotEnabled = true;
         this.circuitInventory = createCircuitItemHandler(io).shouldSearchContent(false);
+        this.filterHandler = FilterHandlers.fluid(this);
     }
 
     //////////////////////////////////////
@@ -100,7 +108,28 @@ public class FluidHatchPartMachine extends TieredIOPartMachine implements IMachi
     }
 
     protected NotifiableFluidTank createTank(int initialCapacity, int slots, Object... args) {
-        return new NotifiableFluidTank(this, slots, getTankCapacity(initialCapacity, getTier()), io);
+        int tankCapacity = getTankCapacity(initialCapacity, getTier());
+        if (io == IO.OUT && hasFilterSlot()) {
+            NotifiableFluidTank filteredTank = new NotifiableFluidTank(this, slots, tankCapacity, io) {
+
+                @Override
+                public int getPriority() {
+                    return filterHandler.isFilterPresent() ? HIGH - getTanks() : super.getPriority();
+                }
+            };
+            return filteredTank.setFilter(this::matchesFilter);
+        }
+        return new NotifiableFluidTank(this, slots, tankCapacity, io);
+    }
+
+    public boolean hasFilterSlot() {
+        return slots > 1;
+    }
+
+    protected boolean matchesFilter(FluidStack stack) {
+        if (filterHandler.isFilterPresent())
+            return filterHandler.getFilter().test(stack);
+        return true;
     }
 
     public static int getTankCapacity(int initialCapacity, int tier) {
@@ -118,6 +147,9 @@ public class FluidHatchPartMachine extends TieredIOPartMachine implements IMachi
 
     @Override
     public void onMachineRemoved() {
+        if (filterHandler.isFilterPresent()) {
+            Block.popResource(getLevel(), getPos(), filterHandler.getFilterItem());
+        }
         if (!ConfigHolder.INSTANCE.machines.ghostCircuit) {
             clearInventory(circuitInventory.storage);
         }
@@ -375,6 +407,11 @@ public class FluidHatchPartMachine extends TieredIOPartMachine implements IMachi
 
         var group = new WidgetGroup(0, 0, 18 * rowSize + 16, 18 * colSize + 16);
         var container = new WidgetGroup(4, 4, 18 * rowSize + 8, 18 * colSize + 8);
+
+        if (this.io == IO.OUT && hasFilterSlot()) {
+            group.addWidget(filterHandler.createFilterSlotUI(71 + (18 * rowSize) / 2, 35 + 9 * rowSize)
+                    .setHoverTooltips(Component.translatable("cover.fluid_filter.title")));
+        }
 
         int index = 0;
         for (int y = 0; y < colSize; y++) {
