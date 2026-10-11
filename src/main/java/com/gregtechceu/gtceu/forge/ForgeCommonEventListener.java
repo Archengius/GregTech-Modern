@@ -27,6 +27,7 @@ import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.common.capability.EnvironmentalHazardSavedData;
 import com.gregtechceu.gtceu.common.capability.LocalizedHazardSavedData;
 import com.gregtechceu.gtceu.common.capability.MedicalConditionTracker;
+import com.gregtechceu.gtceu.common.capability.PlayerJetpackHandler;
 import com.gregtechceu.gtceu.common.capability.WorldIDSaveData;
 import com.gregtechceu.gtceu.common.commands.GTCommands;
 import com.gregtechceu.gtceu.common.commands.HazardCommands;
@@ -37,7 +38,6 @@ import com.gregtechceu.gtceu.common.data.machines.GTAEMachines;
 import com.gregtechceu.gtceu.common.fluid.potion.BottleItemFluidHandler;
 import com.gregtechceu.gtceu.common.fluid.potion.PotionItemFluidHandler;
 import com.gregtechceu.gtceu.common.item.ToggleEnergyConsumerBehavior;
-import com.gregtechceu.gtceu.common.item.armor.IJetpack;
 import com.gregtechceu.gtceu.common.item.armor.QuarkTechSuite;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 import com.gregtechceu.gtceu.common.network.GTNetwork;
@@ -95,7 +95,6 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -148,6 +147,7 @@ public class ForgeCommonEventListener {
                             LazyOptional.of(() -> tracker));
                 }
             });
+            event.addCapability(GTCEu.id("jetpack_handler"), new PlayerJetpackHandler(entity));
         }
     }
 
@@ -348,31 +348,6 @@ public class ForgeCommonEventListener {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public static void onEntityLivingFallEvent(LivingFallEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            if (player.fallDistance < 3.2f)
-                return;
-
-            ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
-            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-
-            if (boots.is(CustomTags.STEP_BOOTS) && boots.getItem() instanceof ArmorComponentItem armor) {
-                armor.getArmorLogic().damageArmor(player, boots, player.damageSources().fall(),
-                        (int) (player.fallDistance - 1.2f), EquipmentSlot.FEET);
-                player.fallDistance = 0;
-                event.setCanceled(true);
-            } else if (chest.getItem() instanceof ArmorComponentItem armor &&
-                    armor.getArmorLogic() instanceof IJetpack jetpack &&
-                    jetpack.canUseEnergy(chest, jetpack.getEnergyPerUse()) &&
-                    player.fallDistance >= player.getHealth() + 3.2f) {
-                        IJetpack.performEHover(chest, player);
-                        player.fallDistance = 0;
-                        event.setCanceled(true);
-                    }
-        }
-    }
-
     @SubscribeEvent
     public static void playerTickEvent(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
@@ -408,6 +383,17 @@ public class ForgeCommonEventListener {
                         new AttributeModifier(BlockAttributes.BLOCK_SPEED_BOOST, "GT Block Speed Boost",
                                 speedBoost, AttributeModifier.Operation.MULTIPLY_BASE));
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void tickPlayerJetpack(TickEvent.PlayerTickEvent event) {
+        if (event.side == LogicalSide.CLIENT || event.phase != TickEvent.Phase.END) {
+            return;
+        }
+        PlayerJetpackHandler jetpackHandler = GTCapabilityHelper.getPlayerJetpackHandler(event.player);
+        if (jetpackHandler != null) {
+            jetpackHandler.serverTick();
         }
     }
 
@@ -455,13 +441,18 @@ public class ForgeCommonEventListener {
 
     @SubscribeEvent
     public static void onPlayerLevelChange(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (!ConfigHolder.INSTANCE.gameplay.environmentalHazards) {
-            return;
+        // Reset synced data on dimension change, since client will reset it due to player entity recreation
+        PlayerJetpackHandler jetpackHandler = GTCapabilityHelper.getPlayerJetpackHandler(event.getEntity());
+        if (jetpackHandler != null) {
+            jetpackHandler.reset();
         }
 
-        ServerLevel newLevel = event.getEntity().getServer().getLevel(event.getTo());
-        var data = EnvironmentalHazardSavedData.getOrCreate(newLevel);
-        GTNetwork.sendToPlayer((ServerPlayer) event.getEntity(), new SPacketSyncLevelHazards(data.getHazardZones()));
+        if (ConfigHolder.INSTANCE.gameplay.environmentalHazards) {
+            ServerLevel newLevel = event.getEntity().getServer().getLevel(event.getTo());
+            var data = EnvironmentalHazardSavedData.getOrCreate(newLevel);
+            GTNetwork.sendToPlayer((ServerPlayer) event.getEntity(),
+                    new SPacketSyncLevelHazards(data.getHazardZones()));
+        }
     }
 
     @SubscribeEvent
@@ -658,18 +649,6 @@ public class ForgeCommonEventListener {
                     }
                 }
             });
-        }
-    }
-
-    @SubscribeEvent
-    public static void breakSpeed(PlayerEvent.BreakSpeed event) {
-        Player player = event.getEntity();
-        for (ItemStack stack : player.getArmorSlots()) {
-            if (stack.getItem() instanceof ArmorComponentItem componentItem) {
-                if (componentItem.getArmorLogic() instanceof IJetpack jetpack && jetpack.removeMiningSpeedPenalty()) {
-                    if (!player.onGround() || player.isUnderWater()) event.setNewSpeed(event.getOriginalSpeed() * 5);
-                }
-            }
         }
     }
 }

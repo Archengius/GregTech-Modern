@@ -217,12 +217,12 @@ public enum KeyBind {
             case VANILLA_JUMP -> SyncedKeyMappings.VANILLA_JUMP;
             case VANILLA_SNEAK -> SyncedKeyMappings.VANILLA_SNEAK;
             case VANILLA_FORWARD -> SyncedKeyMappings.VANILLA_FORWARD;
-            case VANILLA_BACKWARD -> SyncedKeyMappings.VANILLA_BACKWARD;
-            case VANILLA_LEFT -> SyncedKeyMappings.VANILLA_LEFT;
-            case VANILLA_RIGHT -> SyncedKeyMappings.VANILLA_RIGHT;
+            case VANILLA_BACKWARD -> null;
+            case VANILLA_LEFT -> null;
+            case VANILLA_RIGHT -> null;
             case ARMOR_MODE_SWITCH -> SyncedKeyMappings.ARMOR_MODE_SWITCH;
-            case ARMOR_HOVER -> SyncedKeyMappings.ARMOR_HOVER;
-            case JETPACK_ENABLE -> SyncedKeyMappings.JETPACK_ENABLE;
+            case ARMOR_HOVER -> null;
+            case JETPACK_ENABLE -> null;
             case BOOTS_ENABLE -> SyncedKeyMappings.BOOTS_ENABLE;
             case ARMOR_CHARGING -> SyncedKeyMappings.ARMOR_CHARGING;
             case TOOL_AOE_CHANGE -> SyncedKeyMappings.TOOL_AOE_CHANGE;

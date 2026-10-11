@@ -135,6 +135,7 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public void registerKeyBindings(RegisterKeyMappingsEvent event) {
         SyncedKeyMapping.onRegisterKeyBinds(event);
+        GTKeyMappings.register(event);
     }
 
     @SubscribeEvent
