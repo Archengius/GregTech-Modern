@@ -147,6 +147,10 @@ public class PowerSubstationMachine extends WorkableMultiblockMachine
             this.energyBank = energyBank.rebuild(batteries);
         }
         this.passiveDrain = this.energyBank.getPassiveDrainPerTick();
+        // The hatch listeners above only fire when a hatch's stored energy changes. If the structure forms
+        // with full input hatches and empty output hatches, no hatch will ever change on its own, so the
+        // transfer tick has to be started here or the substation stays idle forever.
+        tickSubscription.updateSubscription();
     }
 
     @Override
@@ -162,6 +166,7 @@ public class PowerSubstationMachine extends WorkableMultiblockMachine
         netOutLastSec = 0;
         outputPerSec = 0;
         super.onStructureInvalid();
+        tickSubscription.unsubscribe();
     }
 
     protected void transferEnergyTick() {
